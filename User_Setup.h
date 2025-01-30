@@ -1,0 +1,17 @@
+/*================================================================================
+ * TFT_eSPI configuration
+ * https://github.com/espressif/arduino-esp32/tree/master/variants
+ *================================================================================*/
+#include "./pin_assign.h"
+
+// variants/jczn_2432s028r/pins_arduino.h
+#if defined (CYD_TP_CS)
+// false: Panel driver: ILI9341 (micro-USB x 1 type)
+// true : Panel driver: ST7789  (micro-USB x 1 + USB-C x 1 type)
+#define DISPLAY_CYD_2USB  true
+#include "./boards/Setup_CYD_2432S028R.h"
+
+// variants/XIAO_ESP32S3/pins_arduino.h
+#elif defined (ARDUINO_XIAO_ESP32S3)
+#include "./boards/Setup_XIAO_ESP32S3_ST7789.h"
+#endif
