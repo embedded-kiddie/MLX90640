@@ -62,12 +62,12 @@ static constexpr Image_t image_toggle[] = {
   { toggle_on,  sizeof(toggle_on ) }, // 42 x 26
 };
 static constexpr Image_t image_arrowL[] = {
-  { icon_arrow_Loff, sizeof(icon_arrow_Loff) }, // 26 x 26
-  { icon_arrow_Lon,  sizeof(icon_arrow_Lon ) }, // 26 x 26
+  { icon_arrow_Loff, sizeof(icon_arrow_Loff) }, // 22 x 26
+  { icon_arrow_Lon,  sizeof(icon_arrow_Lon ) }, // 22 x 26
 };
 static constexpr Image_t image_arrowR[] = {
-  { icon_arrow_Roff, sizeof(icon_arrow_Roff) }, // 26 x 26
-  { icon_arrow_Ron,  sizeof(icon_arrow_Ron ) }, // 26 x 26
+  { icon_arrow_Roff, sizeof(icon_arrow_Roff) }, // 22 x 26
+  { icon_arrow_Ron,  sizeof(icon_arrow_Ron ) }, // 22 x 26
 };
 static constexpr Image_t image_arrowU[] = {
   { icon_arrow_Uoff, sizeof(icon_arrow_Uoff) }, // 26 x 26
@@ -125,14 +125,15 @@ static constexpr Image_t image_target[] = {
  * SLIDER_KNOB_OFFSET               SLIDER_KNOB_OFFSET
  * "||" ... The center of the knob (touching point)
  *--------------------------------------------------------------------------------*/
-#define SLIDER_KNOB_OFFSET  6 // Offset from both ends of the bar
+#define SLIDER_KNOB_OFFSET1 6 // Offset from both ends of the bar1
+#define SLIDER_KNOB_OFFSET2 4 // Offset from both ends of the bar2
 
 static constexpr Image_t image_slider1[] = {
   { slider_bar1, sizeof(slider_bar1) }, // 160 x 26
   { slider_knob, sizeof(slider_knob) }, //  26 x 26
 };
 static constexpr Image_t image_slider2[] = {
-  { slider_bar2,     sizeof(slider_bar2    ) }, // 238 x 26
+  { slider_bar2,     sizeof(slider_bar2    ) }, // 200 x 26
   { slider_knob,     sizeof(slider_knob    ) }, //  26 x 26
   { slider_knob_off, sizeof(slider_knob_off) }, //  26 x 26
 };
@@ -211,6 +212,10 @@ static void onThermographToggle1  (const Widget_t *widget, const Touch_t &touch)
 static void onThermographToggle2  (const Widget_t *widget, const Touch_t &touch);
 static void onThermographSlider1  (const Widget_t *widget, const Touch_t &touch);
 static void onThermographSlider2  (const Widget_t *widget, const Touch_t &touch);
+static void onThermographMinUp    (const Widget_t *widget, const Touch_t &touch);
+static void onThermographMinDown  (const Widget_t *widget, const Touch_t &touch);
+static void onThermographMaxUp    (const Widget_t *widget, const Touch_t &touch);
+static void onThermographMaxDown  (const Widget_t *widget, const Touch_t &touch);
 static void onThermographClose    (const Widget_t *widget, const Touch_t &touch);
 static void onThermographReset    (const Widget_t *widget, const Touch_t &touch);
 static void onThermographApply    (const Widget_t *widget, const Touch_t &touch);
@@ -220,9 +225,13 @@ static constexpr Widget_t widget_thermograph[] = {
   { 137,   5, 110,  26, image_radio,       EVENT_DOWN,  onThermographRadio1  },
   { 137,  38, 110,  26, image_radio,       EVENT_DOWN,  onThermographRadio2  },
   { 137,  71, 170,  26, image_toggle,      EVENT_DOWN,  onThermographToggle1 },
-  { 137, 103, 170,  26, image_toggle,      EVENT_DOWN,  onThermographToggle2 },
-  {  40, 134, 238,  26, image_slider2,     EVENT_DRAG,  onThermographSlider1 },
-  {  40, 173, 238,  26, image_slider2,     EVENT_DRAG,  onThermographSlider2 },
+  { 137, 103, 150,  26, image_toggle,      EVENT_DOWN,  onThermographToggle2 },
+  {  34, 134, 200,  26, image_slider2,     EVENT_DRAG,  onThermographSlider1 },
+  {  34, 173, 200,  26, image_slider2,     EVENT_DRAG,  onThermographSlider2 },
+  { 297, 134,  22,  26, image_arrowR,      EVENT_CLICK, onThermographMinUp   },
+  { 235, 134,  22,  26, image_arrowL,      EVENT_CLICK, onThermographMinDown },
+  { 297, 173,  22,  26, image_arrowR,      EVENT_CLICK, onThermographMaxUp   },
+  { 235, 173,  22,  26, image_arrowL,      EVENT_CLICK, onThermographMaxDown },
   {  60, 206,  30,  30, NULL,              EVENT_ALL,   onThermographClose   },
   { 147, 206,  30,  30, image_icon_reset,  EVENT_CLICK, onThermographReset   },
   { 230, 206,  30,  30, image_icon_apply,  EVENT_CLICK, onThermographApply   },
@@ -532,11 +541,11 @@ static void onConfigurationReturn(const Widget_t *widget, const Touch_t &touch) 
 static void MakeSliderPos(const Widget_t *widget, const int16_t *scale, const int16_t n_scale, int16_t *pos) {
   // Here it's assumed that the knob width is equal to its height.
   // maximum  knob position on the bar
-  int16_t pos_max = widget->w - widget->h - SLIDER_KNOB_OFFSET;
-  const float step = (float)(pos_max - SLIDER_KNOB_OFFSET) / (float)(scale[n_scale-1] - scale[0]);
+  int16_t pos_max = widget->w - widget->h - SLIDER_KNOB_OFFSET1;
+  const float step = (float)(pos_max - SLIDER_KNOB_OFFSET1) / (float)(scale[n_scale-1] - scale[0]);
 
   for (int i = 0; i < n_scale; ++i) {
-    pos[i] = (int)((float)(scale[i] - scale[0]) * step + 0.5f) + SLIDER_KNOB_OFFSET;
+    pos[i] = (int)((float)(scale[i] - scale[0]) * step + 0.5f) + SLIDER_KNOB_OFFSET1;
 
     CHECK_WIDGET_AREA(drawFastVLine(widget->x + pos[i] + widget->h / 2, widget->y - 10, 10, TFT_RED));
   }
@@ -696,16 +705,16 @@ static void onResolutionApply(const Widget_t *widget, const Touch_t &touch) {
 #define TERMOGRAPH_MAX      (140)
 #define TERMOGRAPH_STEP     (1)   // --> 'RANGE_STEP' in filter.hpp
 #define TERMOGRAPH_DIFF     (5)
-#define TERMOGRAPH_MIN_ROW  282
-#define TERMOGRAPH_MIN_COL  139
-#define TERMOGRAPH_MAX_ROW  282
-#define TERMOGRAPH_MAX_COL  178
+#define TERMOGRAPH_MIN_X    260
+#define TERMOGRAPH_MIN_Y    140
+#define TERMOGRAPH_MAX_X    260
+#define TERMOGRAPH_MAX_Y    179
 
 static __attribute__((optimize("O0"))) int16_t GetThermoSlider(const Widget_t *widget, const Touch_t &touch) {
   // Here it's assumed that the knob width is equal to its height.
-  int16_t X = touch.x - widget->x - widget->h / 2;        // Relative x coordinate of top left of knob
-  int16_t Y = SLIDER_KNOB_OFFSET;                         // Minimum value of knob top left coordinate
-  int16_t Z = widget->w - widget->h - SLIDER_KNOB_OFFSET; // Maximum value of knob top left coordinate
+  int16_t X = touch.x - widget->x - widget->h / 2;         // Relative x coordinate of top left of knob
+  int16_t Y = SLIDER_KNOB_OFFSET2;                         // Minimum value of knob top left coordinate
+  int16_t Z = widget->w - widget->h - SLIDER_KNOB_OFFSET2; // Maximum value of knob top left coordinate
 
   DrawSlider(widget, X = constrain(X, Y, Z));
 
@@ -719,11 +728,27 @@ static __attribute__((optimize("O0"))) int16_t GetThermoSlider(const Widget_t *w
 
 static void PutThermoSlider(const Widget_t *widget, int16_t V, bool enable) {
   // Here it's assumed that the knob width is equal to its height.
-  int16_t Y = SLIDER_KNOB_OFFSET;                         // Minimum value of knob top left coordinate
-  int16_t Z = widget->w - widget->h - SLIDER_KNOB_OFFSET; // Maximum value of knob top left coordinate
+  int16_t Y = SLIDER_KNOB_OFFSET2;                         // Minimum value of knob top left coordinate
+  int16_t Z = widget->w - widget->h - SLIDER_KNOB_OFFSET2; // Maximum value of knob top left coordinate
 
   int16_t X = (V - TERMOGRAPH_MIN) * (Z - Y) / (TERMOGRAPH_MAX - TERMOGRAPH_MIN) + Y;
   DrawSlider(widget, X = constrain(X, Y, Z), enable);
+}
+
+static void DrawRangeMin(const Widget_t* widget, const Touch_t &touch) {
+  // draw button when touch.event == EVENT_INIT or EVENT_UP
+  if (touch.event != EVENT_DOWN) {
+    DrawButton(widget,     (!cnf_copy.range_auto && cnf_copy.range_min < TERMOGRAPH_MAX) ? 1 : 0);
+    DrawButton(widget + 1, (!cnf_copy.range_auto && cnf_copy.range_min > TERMOGRAPH_MIN) ? 1 : 0);
+  }
+}
+
+static void DrawRangeMax(const Widget_t* widget, const Touch_t &touch) {
+  // draw button when touch.event == EVENT_INIT or EVENT_UP
+  if (touch.event != EVENT_DOWN) {
+    DrawButton(widget,     (!cnf_copy.range_auto && cnf_copy.range_max < TERMOGRAPH_MAX) ? 1 : 0);
+    DrawButton(widget + 1, (!cnf_copy.range_auto && cnf_copy.range_max > TERMOGRAPH_MIN) ? 1 : 0);
+  }
 }
 
 static void onThermographScreen(const Widget_t *widget, const Touch_t &touch) {
@@ -750,7 +775,7 @@ static void onThermographRadio1(const Widget_t *widget, const Touch_t &touch) {
 
   // Enable apply if somethig is changed
   DrawTemperatureRange(1);
-  onThermographApply(widget + 8, doInit);
+  onThermographApply(widget + 12, doInit);
 }
 
 static void onThermographRadio2(const Widget_t *widget, const Touch_t &touch) {
@@ -764,7 +789,7 @@ static void onThermographRadio2(const Widget_t *widget, const Touch_t &touch) {
 
   // Enable apply if somethig is changed
   DrawTemperatureRange(1);
-  onThermographApply(widget + 7, doInit);
+  onThermographApply(widget + 11, doInit);
 }
 
 static void onThermographToggle1(const Widget_t *widget, const Touch_t &touch) {
@@ -777,7 +802,7 @@ static void onThermographToggle1(const Widget_t *widget, const Touch_t &touch) {
   DrawToggle(widget, cnf_copy.marker_mode & 1);
 
   // Enable apply if somethig is changed
-  onThermographApply(widget + 6, doInit);
+  onThermographApply(widget + 10, doInit);
 }
 
 static void onThermographToggle2(const Widget_t *widget, const Touch_t &touch) {
@@ -795,21 +820,26 @@ static void onThermographToggle2(const Widget_t *widget, const Touch_t &touch) {
 
   DrawToggle(widget, cnf_copy.range_auto);
 
-  // Disable Slider
+  // Disable sliders and up/down buttons
   onThermographSlider1(widget + 1, doInit);
   onThermographSlider2(widget + 2, doInit);
 
   // Enable apply if somethig is changed
-  onThermographApply(widget + 5, doInit);
+  onThermographApply(widget + 9, doInit);
 }
 
 static void onThermographSlider1(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event == EVENT_INIT) {
+  if (touch.event == EVENT_INIT || touch.event == EVENT_SHOW) {
+    // Temperature minimum and maximum restrictions
+    if (cnf_copy.range_max - cnf_copy.range_min < TERMOGRAPH_DIFF) {
+      mlx_cnf.range_min = cnf_copy.range_min = cnf_copy.range_max - TERMOGRAPH_DIFF;
+    }
+
     // when range_auto == true then make slider disable
     PutThermoSlider(widget, cnf_copy.range_min, !cnf_copy.range_auto);
-    gfx_printf(TERMOGRAPH_MIN_ROW, TERMOGRAPH_MIN_COL, "%3d", cnf_copy.range_min);
+    gfx_printf(TERMOGRAPH_MIN_X, TERMOGRAPH_MIN_Y, "%3d", cnf_copy.range_min);
   }
 
   else if (!cnf_copy.range_auto) {
@@ -818,28 +848,34 @@ static void onThermographSlider1(const Widget_t *widget, const Touch_t &touch) {
     static int16_t V = 0xFFFF;
     if (V != v) {
       mlx_cnf.range_min = cnf_copy.range_min = V = v;
-      gfx_printf(TERMOGRAPH_MIN_ROW, TERMOGRAPH_MIN_COL, "%3d", cnf_copy.range_min);
-
-      // Temperature minimum and maximum restrictions
-      if (cnf_copy.range_max - cnf_copy.range_min < TERMOGRAPH_DIFF) {
-        mlx_cnf.range_max = cnf_copy.range_max = cnf_copy.range_min + TERMOGRAPH_DIFF;
-        onThermographSlider2(widget + 1, doInit);
-      }
+      gfx_printf(TERMOGRAPH_MIN_X, TERMOGRAPH_MIN_Y, "%3d", cnf_copy.range_min);
+      onThermographSlider2(widget + 1, doInit);
     }
+  }
+
+  // Update up/down buttons
+  if (touch.event != EVENT_SHOW) {
+    onThermographMinUp  (widget + 2, doInit);
+    onThermographMinDown(widget + 3, doInit);
   }
 
   // Enable apply if somethig is changed
   DrawTemperatureRange(2);
-  onThermographApply(widget + 4, doInit);
+  onThermographApply(widget + 8, doInit);
 }
 
 static void onThermographSlider2(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event == EVENT_INIT) {
+  if (touch.event == EVENT_INIT || touch.event == EVENT_SHOW) {
+    // Temperature minimum and maximum restrictions
+    if (cnf_copy.range_max - cnf_copy.range_min < TERMOGRAPH_DIFF) {
+      mlx_cnf.range_max = cnf_copy.range_max = cnf_copy.range_min + TERMOGRAPH_DIFF;
+    }
+
     // when range_auto == true then make slider disable
     PutThermoSlider(widget, cnf_copy.range_max, !cnf_copy.range_auto);
-    gfx_printf(TERMOGRAPH_MAX_ROW, TERMOGRAPH_MAX_COL, "%3d", cnf_copy.range_max);
+    gfx_printf(TERMOGRAPH_MAX_X, TERMOGRAPH_MAX_Y, "%3d", cnf_copy.range_max);
   }
 
   else if (!cnf_copy.range_auto) {
@@ -848,19 +884,76 @@ static void onThermographSlider2(const Widget_t *widget, const Touch_t &touch) {
     static int16_t V = 0xFFFF;
     if (V != v) {
       mlx_cnf.range_max = cnf_copy.range_max = V = v;
-      gfx_printf(TERMOGRAPH_MAX_ROW, TERMOGRAPH_MAX_COL, "%3d", cnf_copy.range_max);
-
-      // Temperature minimum and maximum restrictions
-      if (cnf_copy.range_max - cnf_copy.range_min < TERMOGRAPH_DIFF) {
-        mlx_cnf.range_min = cnf_copy.range_min = cnf_copy.range_max - TERMOGRAPH_DIFF;
-        onThermographSlider1(widget - 1, doInit);
-      }
+      gfx_printf(TERMOGRAPH_MAX_X, TERMOGRAPH_MAX_Y, "%3d", cnf_copy.range_max);
+      onThermographSlider1(widget - 1, doInit);
     }
+  }
+
+  // Update up/down buttons
+  if (touch.event != EVENT_SHOW) {
+    onThermographMaxUp  (widget + 3, doInit);
+    onThermographMaxDown(widget + 4, doInit);
   }
 
   // Enable apply if somethig is changed
   DrawTemperatureRange(2);
-  onThermographApply(widget + 3, doInit);
+  onThermographApply(widget + 7, doInit);
+}
+
+static void onThermographMinUp(const Widget_t *widget, const Touch_t &touch) {
+  DBG_FUNC(printf("%s\n", __func__));
+
+  if (touch.event != EVENT_INIT && !cnf_copy.range_auto && cnf_copy.range_min < TERMOGRAPH_MAX) {
+    DrawPress(widget, touch.event);
+    if (touch.event & EVENT_DOWN) {
+      mlx_cnf.range_min = ++cnf_copy.range_min;
+      onThermographSlider1(widget - 2, showRange);
+    }
+  }
+
+  DrawRangeMin(widget, touch);
+}
+
+static void onThermographMinDown(const Widget_t *widget, const Touch_t &touch) {
+  DBG_FUNC(printf("%s\n", __func__));
+
+  if (touch.event != EVENT_INIT && !cnf_copy.range_auto && cnf_copy.range_min > TERMOGRAPH_MIN) {
+    DrawPress(widget, touch.event);
+    if (touch.event & EVENT_DOWN) {
+      mlx_cnf.range_min = --cnf_copy.range_min;
+      onThermographSlider1(widget - 3, showRange);
+    }
+  }
+
+  DrawRangeMin(widget - 1, touch);
+}
+
+static void onThermographMaxUp(const Widget_t *widget, const Touch_t &touch) {
+  DBG_FUNC(printf("%s\n", __func__));
+
+  if (touch.event != EVENT_INIT && !cnf_copy.range_auto && cnf_copy.range_max < TERMOGRAPH_MAX) {
+    DrawPress(widget, touch.event);
+    if (touch.event & EVENT_DOWN) {
+      mlx_cnf.range_max = ++cnf_copy.range_max;
+      onThermographSlider2(widget - 3, showRange);
+    }
+  }
+
+  DrawRangeMax(widget, touch);
+}
+
+static void onThermographMaxDown(const Widget_t *widget, const Touch_t &touch) {
+  DBG_FUNC(printf("%s\n", __func__));
+
+  if (touch.event & EVENT_DOWN && !cnf_copy.range_auto && cnf_copy.range_max > TERMOGRAPH_MIN) {
+    DrawPress(widget, touch.event);
+    if (touch.event & EVENT_DOWN) {
+      mlx_cnf.range_max = --cnf_copy.range_max;
+      onThermographSlider2(widget - 4, showRange);
+    }
+  }
+
+  DrawRangeMax(widget - 1, touch);
 }
 
 static void onThermographClose(const Widget_t *widget, const Touch_t &touch) {
@@ -888,10 +981,10 @@ static void onThermographReset(const Widget_t *widget, const Touch_t &touch) {
     mlx_cnf.interpolation = 4;
     mlx_cnf.init();
 
-    onThermographRadio1 (widget - 7, doInit);
-    onThermographRadio2 (widget - 6, doInit);
-    onThermographToggle1(widget - 5, doInit);
-    onThermographToggle2(widget - 4, doInit);
+    onThermographRadio1 (widget - 11, doInit);
+    onThermographRadio2 (widget - 10, doInit);
+    onThermographToggle1(widget -  9, doInit);
+    onThermographToggle2(widget -  8, doInit);
   }
 }
 
@@ -1329,10 +1422,10 @@ static bool SaveCalibration(TouchConfig_t &config) {
 
 #define TOUCH_OFFSET_MIN    (-10)
 #define TOUCH_OFFSET_MAX    ( 10)
-#define TOUCH_OFFSET_X_ROW  123
-#define TOUCH_OFFSET_X_COL  172
-#define TOUCH_OFFSET_Y_ROW  223
-#define TOUCH_OFFSET_Y_COL  172
+#define TOUCH_OFFSET_X_COL  123
+#define TOUCH_OFFSET_X_ROW  172
+#define TOUCH_OFFSET_Y_COL  223
+#define TOUCH_OFFSET_Y_ROW  172
 
 static void DrawOffsetX(const Widget_t* widget, const Touch_t &touch, const Widget_t *apply) {
   // draw button when touch.event == EVENT_INIT or EVENT_UP
@@ -1341,7 +1434,7 @@ static void DrawOffsetX(const Widget_t* widget, const Touch_t &touch, const Widg
     DrawButton(widget + 1, (tch_copy.offset[0] > TOUCH_OFFSET_MIN) ? 1 : 0);
   }
 
-  gfx_printf(TOUCH_OFFSET_X_ROW, TOUCH_OFFSET_X_COL, "%3d", (int)tch_copy.offset[0]);
+  gfx_printf(TOUCH_OFFSET_X_COL, TOUCH_OFFSET_X_ROW, "%3d", (int)tch_copy.offset[0]);
 
   // Enable apply if somethig is changed
   onCalibrationApply(apply, doInit);
@@ -1354,7 +1447,7 @@ static void DrawOffsetY(const Widget_t* widget, const Touch_t &touch, const Widg
     DrawButton(widget + 1, (tch_copy.offset[1] > TOUCH_OFFSET_MIN) ? 1 : 0);
   }
 
-  gfx_printf(TOUCH_OFFSET_Y_ROW, TOUCH_OFFSET_Y_COL, "%3d", (int)tch_copy.offset[1]);
+  gfx_printf(TOUCH_OFFSET_Y_COL, TOUCH_OFFSET_Y_ROW, "%3d", (int)tch_copy.offset[1]);
 
   // Enable apply if somethig is changed
   onCalibrationApply(apply, doInit);
@@ -1434,7 +1527,7 @@ static void onCalibrationXdown(const Widget_t *widget, const Touch_t &touch) {
   if (touch.event != EVENT_INIT && tch_copy.offset[0] > TOUCH_OFFSET_MIN) {
     DrawPress(widget, touch.event);
     if (touch.event & EVENT_DOWN) {
-      tch_copy.offset[0]--;
+      --tch_copy.offset[0];
     }
   }
 
@@ -1460,7 +1553,7 @@ static void onCalibrationYdown(const Widget_t *widget, const Touch_t &touch) {
   if (touch.event != EVENT_INIT && tch_copy.offset[1] > TOUCH_OFFSET_MIN) {
     DrawPress(widget, touch.event);
     if (touch.event & EVENT_DOWN) {
-      tch_copy.offset[1]--;
+      --tch_copy.offset[1];
     }
   }
 
@@ -1526,8 +1619,8 @@ static void onAdjustOffsetTarget(const Widget_t *widget, const Touch_t &touch) {
     tch_ajst.offset[0] = constrain(tch_ajst.offset[0], TOUCH_OFFSET_MIN, TOUCH_OFFSET_MAX);
     tch_ajst.offset[1] = constrain(tch_ajst.offset[1], TOUCH_OFFSET_MIN, TOUCH_OFFSET_MAX);
 
-    gfx_printf(TOUCH_OFFSET_X_ROW, TOUCH_OFFSET_X_COL, "%3d", (int)tch_ajst.offset[0]);
-    gfx_printf(TOUCH_OFFSET_Y_ROW, TOUCH_OFFSET_Y_COL, "%3d", (int)tch_ajst.offset[1]);
+    gfx_printf(TOUCH_OFFSET_X_COL, TOUCH_OFFSET_X_ROW, "%3d", (int)tch_ajst.offset[0]);
+    gfx_printf(TOUCH_OFFSET_Y_COL, TOUCH_OFFSET_Y_ROW, "%3d", (int)tch_ajst.offset[1]);
 
     // Enable apply if somethig is changed
     onAdjustOffsetApply(widget + 2, doInit);

@@ -5,3 +5,6 @@
 # Mac special files
 */.DS_store
 */._*
+
+widgets/*
+

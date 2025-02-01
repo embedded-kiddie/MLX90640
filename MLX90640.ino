@@ -7,7 +7,10 @@
 #include <Arduino.h>
 #include "pin_assign.h"
 
-#define DEBUG true
+/*--------------------------------------------------------------------------------
+ * Step 1: Configure serial output for debugging
+ *--------------------------------------------------------------------------------*/
+#define DEBUG false
 #if     DEBUG
 #define DBG_EXEC(x) x
 #else
@@ -15,14 +18,14 @@
 #endif
 
 /*--------------------------------------------------------------------------------
- * Step 1: Configure Operational settings
+ * Step 2: Configure Operational settings
  *--------------------------------------------------------------------------------*/
 #define ENA_INTERPOLATION   true  // Enable interpolation
 #define ENA_MULTITASKING    true  // Enable multi-task by FreeRTOS
 #define ENA_OUTWARD_CAMERA  false // Camera orientation (true: Outward, false: Selfie)
 
 /*--------------------------------------------------------------------------------
- * Step 2: Select GFX Library
+ * Step 3: Select GFX Library
  *--------------------------------------------------------------------------------*/
 #if   1
 /*--------------------------------------------------------------------------------
@@ -46,12 +49,12 @@
 #endif
 
 /*--------------------------------------------------------------------------------
- * Step 3: Configure flash memory setting to save touch calibration data
+ * Step 4: Configure flash memory setting to save touch calibration data
  *--------------------------------------------------------------------------------*/
-#define USE_PREFERENCES true
+#define USE_PREFERENCES false
 
 /*--------------------------------------------------------------------------------
- * Step 4: Configure MLX90640 settings
+ * Configure MLX90640 settings
  *--------------------------------------------------------------------------------*/
 #if ENA_INTERPOLATION
 #define INTERPOLATE_SCALE 8

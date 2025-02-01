@@ -53,6 +53,7 @@ static Widget_t const *focus = NULL;
  * Event message to command initialization
  *--------------------------------------------------------------------------------*/
 static constexpr Touch_t doInit = { EVENT_INIT, 0, 0 };
+static constexpr Touch_t showRange = { EVENT_SHOW, 0, 0 };
 
 /*--------------------------------------------------------------------------------
  * Functions prototyping

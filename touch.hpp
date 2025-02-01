@@ -7,8 +7,14 @@
  *--------------------------------------------------------------------------------*/
 typedef struct TouchConfig {
   // Member variables
-  uint16_t    cal[8];
-  int8_t      offset[2];
+#if   defined (LOVYANGFX_HPP_) || defined (_TFT_eSPIH_)
+  uint16_t  cal[8];
+#elif defined (_XPT2046_Touchscreen_h_)
+  float     cal[8];
+#else
+#error Unsupported touch screen library
+#endif
+  int8_t    offset[2];
 
   // Comparison operator
   bool operator >= (TouchConfig &RHS) {
@@ -28,20 +34,30 @@ typedef struct TouchConfig {
  *--------------------------------------------------------------------------------*/
 TouchConfig_t tch_cnf = {
 #if   defined (LOVYANGFX_HPP_)
+
+  // LovyanGFX
   .cal = { 0, 0, 0, 0, 0, 0, 0, 0 },
+
 #elif defined (_TFT_eSPIH_)
+
+  // TFT_eSPI
   .cal = { 0, 0, 0, 0, 0, },
+
 #else // defined (_XPT2046_Touchscreen_h_)
+
+  // XPT2046_Touchscreen
   .cal = { 0, },
+
 #endif
+
   .offset = { 0, },
 };
 
 /*--------------------------------------------------------------------------------
  * Event definition
  *--------------------------------------------------------------------------------*/
-#define PERIOD_DEBOUNCE     25  // [msec]
-#define PERIOD_TOUCHED      50  // [msec]
+#define PERIOD_DEBOUNCE      25 // [msec]
+#define PERIOD_TOUCHED       50 // [msec]
 #define PERIOD_TAP2         200 // [msec]
 #define PERIOD_CLEAR_EVENT  100 // [msec]
 
@@ -51,7 +67,7 @@ typedef enum {
   EVENT_FALLING = (0x02), // untouch -->   touch
   EVENT_TOUCHED = (0x04), //   touch -->   touch
   EVENT_TAP2    = (0x08), // double tap
-  EVENT_WATCH   = (0x10), // execute a callback every watch cycle
+  EVENT_EXPAND  = (0x10), // not a touch event, but define for convenience
 
   // alias
   EVENT_INIT    = (EVENT_NONE),
@@ -63,6 +79,8 @@ typedef enum {
   EVENT_CHANGE  = (EVENT_FALLING | EVENT_RISING),
   EVENT_SELECT  = (EVENT_FALLING | EVENT_TAP2),
   EVENT_ALL     = (EVENT_FALLING | EVENT_RISING | EVENT_TOUCHED),
+  EVENT_WATCH   = (EVENT_EXPAND), // watch events on a specific screen
+  EVENT_SHOW    = (EVENT_EXPAND), // show something on a specific screen
 } Event_t;
 
 typedef struct Touch {
@@ -221,6 +239,10 @@ void touch_clear(void) {
  * Calibrating the touch panel
  *--------------------------------------------------------------------------------*/
 void touch_calibrate(TouchConfig_t *config) {
+  if (!Serial) {
+    Serial.begin(115200);
+  }
+
 #if   defined (_XPT2046_Touchscreen_h_)
 
 #elif defined (LOVYANGFX_HPP_)
@@ -233,14 +255,12 @@ void touch_calibrate(TouchConfig_t *config) {
   GFX_EXEC(setTextDatum(textdatum_t::top_left));
   GFX_EXEC(calibrateTouch(config->cal, TFT_WHITE, TFT_BLACK, std::max(lcd_width, lcd_height) >> 3));
 
-  DBG_EXEC({
-    printf("\n// LovyanGFX\n");
-    printf(".cal = { ");
-    for (uint8_t i = 0; i < 8; ++i) {
-      printf("%d\n", config->cal[i]);
-      printf(i < 7 ? ", " : " },\n");
-    }
-  });
+  printf("\n// LovyanGFX\n");
+  printf(".cal = { ");
+  for (uint8_t i = 0; i < 8; ++i) {
+    printf("%d", config->cal[i]);
+    printf(i < 7 ? ", " : " },\n");
+  }
 
 #elif defined (_TFT_eSPIH_)
 
@@ -252,14 +272,12 @@ void touch_calibrate(TouchConfig_t *config) {
   GFX_EXEC(println("Touch corners in order"));
   GFX_EXEC(calibrateTouch(config->cal, TFT_MAGENTA, TFT_BLACK, 15));
 
-  DBG_EXEC({
-    printf("\n// TFT_eSPI\n");
-    printf(".cal = { ");
-    for (uint8_t i = 0; i < 5; ++i) {
-      printf("%d\n", config->cal[i]);
-      printf(i < 4 ? ", " : "0, },\n");
-    }
-  });
+  printf("\n// TFT_eSPI\n");
+  printf(".cal = { ");
+  for (uint8_t i = 0; i < 5; ++i) {
+    printf("%d", config->cal[i]);
+    printf(i < 4 ? ", " : "0, },\n");
+  }
 
 #endif
 
