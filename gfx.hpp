@@ -16,10 +16,10 @@
   #define GFX_EXEC(x) lcd.x
   #define GFX_FAST(x) lcd_sprite.x
 
-  /*--------------------------------------------------
-  * variants/jczn_2432s028r/pins_arduino.h
-  *--------------------------------------------------*/
-  #if defined (CYD_TP_CS)
+  /**************************************************/
+  /***** variants/jczn_2432s028r/pins_arduino.h *****/
+  /**************************************************/
+  #if defined (ARDUINO_ESP32_2432S028R)
     #if USE_AUTODETECT
     #define LGFX_AUTODETECT
     #include <LovyanGFX.h>
@@ -31,16 +31,16 @@
     #include "./boards/LGFX_CYD_2432S028R.hpp"
     #endif
 
-  /*--------------------------------------------------
-  * variants/XIAO_ESP32S3/pins_arduino.h
-  *--------------------------------------------------*/
+  /************************************************/
+  /***** variants/XIAO_ESP32S3/pins_arduino.h *****/
+  /************************************************/
   #elif defined (ARDUINO_XIAO_ESP32S3)
     #include <LovyanGFX.h>
     #include "./boards/LGFX_XIAO_ESP32S3_ST7789.hpp"
 
-  /*--------------------------------------------------
-  * variants/your_board_type/pins_arduino.h
-  *--------------------------------------------------*/
+  /***************************************************/
+  /***** variants/your_board_type/pins_arduino.h *****/
+  /***************************************************/
   #else
   #endif
 

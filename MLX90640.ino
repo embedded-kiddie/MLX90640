@@ -43,13 +43,14 @@
  * It does not allow the display and touch screen to be on different SPI buses.
  *--------------------------------------------------------------------------------*/
 #define USE_TFT_ESPI
-#ifdef  CYD_TFT_CS
+#ifdef  ARDUINO_ESP32_2432S028R
 #error Not yet supported  // CYD needs XPT2046_Touchscreen library
 #endif
 #endif
 
 /*--------------------------------------------------------------------------------
  * Step 4: Configure flash memory setting to save touch calibration data
+ * Preferences requires at least 2 partitions. Check the partition scheme.
  *--------------------------------------------------------------------------------*/
 #define USE_PREFERENCES false
 
@@ -100,14 +101,14 @@ void ProcessInput(uint8_t bank) {
     delay(1000); // false = no new frame capture
   }
 
-  if (refresh) {
+  if (!refresh) {
+    // Measure temperature for min/max/pickup
+    filter_temperature(src[bank]);
+  } else {
     // Avoid cluttered image
     for (int i = 0; i < MLX90640_COLS * MLX90640_ROWS; ++i) {
       src[bank][i] = (float)mlx_cnf.range_min;
     }
-  } else {
-    // Measure temperature of min/max/pickup
-    filter_temperature(src[bank]);
   }
 }
 
@@ -195,8 +196,8 @@ void setup() {
   // Initialize interpolation
   interpolate_setup(mlx_cnf.interpolation);
 
-  // Start tasks
 #if ENA_MULTITASKING
+  // Start tasks
   task_setup(ProcessInput, ProcessOutput);
 #endif
 }

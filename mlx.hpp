@@ -11,8 +11,8 @@ Adafruit_MLX90640 mlx;
  *--------------------------------------------------------------------------------*/
 #define MLX90640_COLS 32
 #define MLX90640_ROWS 24
-#define INTERPOLATED_COLS (MLX90640_COLS * 8)
-#define INTERPOLATED_ROWS (MLX90640_ROWS * 8)
+#define INTERPOLATED_COLS (MLX90640_COLS * INTERPOLATE_SCALE)
+#define INTERPOLATED_ROWS (MLX90640_ROWS * INTERPOLATE_SCALE)
 
 /*--------------------------------------------------------------------------------
  * Thermography image
