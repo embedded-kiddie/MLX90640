@@ -1,4 +1,3 @@
-#include <atomic>
 /*--------------------------------------------------------------------------------
  * MLX90640 instance
  *--------------------------------------------------------------------------------*/
@@ -129,7 +128,7 @@ bool mlx_refresh(void) {
  * MLX90640 initializing
  *--------------------------------------------------------------------------------*/
 void mlx_setup(void) {
-#ifdef  MLX_I2C_SDA
+#ifdef  MLX_I2C_SDA // defined in pin_assign.h
   Wire.begin(MLX_I2C_SDA, MLX_I2C_SCL);
 #else
   Wire.begin();

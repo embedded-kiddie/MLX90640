@@ -10,8 +10,8 @@
  *--------------------------------------------------------------------------------*/
 // variants/jczn_2432s028r/pins_arduino.h
 #if defined (ARDUINO_ESP32_2432S028R)
-#define MLX_I2C_SDA 22
-#define MLX_I2C_SCL 27
+#define MLX_I2C_SDA D27 // GPIO27 on CN1
+#define MLX_I2C_SCL SCL // GPIO22 on CN1
 #endif
 
 /*--------------------------------------------------------------------------------

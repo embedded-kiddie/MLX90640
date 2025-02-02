@@ -6,12 +6,11 @@
 #include <SD.h>
 #include <SPI.h>
 
+#if defined (USE_LOVYAN_GFX)
 /*--------------------------------------------------------------------------------
  * LovyanGFX
  * https://github.com/lovyan03/LovyanGFX
  *--------------------------------------------------------------------------------*/
-#ifdef USE_LOVYAN_GFX
-
   #define SCREEN_ROTATION 3
   #define GFX_EXEC(x) lcd.x
   #define GFX_FAST(x) lcd_sprite.x
@@ -44,12 +43,12 @@
   #else
   #endif
 
+#elif defined (USE_TFT_ESPI)
 /*--------------------------------------------------------------------------------
  * TFT_eSPI
  * https://github.com/Bodmer/TFT_eSPI
  *--------------------------------------------------------------------------------*/
-#elif defined (USE_TFT_ESPI)
-#include <TFT_eSPI.h>
+  #include <TFT_eSPI.h>
 #endif
 
 /*--------------------------------------------------------------------------------

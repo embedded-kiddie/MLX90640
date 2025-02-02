@@ -28,31 +28,31 @@
  * Step 3: Select GFX Library
  *--------------------------------------------------------------------------------*/
 #if   1
+#define USE_LOVYAN_GFX
 /*--------------------------------------------------------------------------------
  * LovyanGFX
  * Note: Currently 'AUTODETECT' only works for 'ESP32 2432S028R'.
  * For other boards you need to configure appropriately to fit your device.
  * See https://github.com/lovyan03/LovyanGFX/blob/master/src/lgfx/boards.hpp
  *--------------------------------------------------------------------------------*/
-#define USE_LOVYAN_GFX
 #define USE_AUTODETECT  true
 
 #else
+#define USE_TFT_ESPI
 /*--------------------------------------------------------------------------------
  * TFT_eSPI
  * It does not allow the display and touch screen to be on different SPI buses.
  *--------------------------------------------------------------------------------*/
-#define USE_TFT_ESPI
-#ifdef  ARDUINO_ESP32_2432S028R
+#ifdef ARDUINO_ESP32_2432S028R
 #error Not yet supported  // CYD needs XPT2046_Touchscreen library
 #endif
 #endif
 
 /*--------------------------------------------------------------------------------
  * Step 4: Configure flash memory setting to save touch calibration data
- * Preferences requires at least 2 partitions. Check the partition scheme.
+ * Preferences requires at least 2 partitions. Check the partition scheme on Tools.
  *--------------------------------------------------------------------------------*/
-#define USE_PREFERENCES false
+#define USE_PREFERENCES true
 
 /*--------------------------------------------------------------------------------
  * Configure MLX90640 settings
@@ -118,6 +118,7 @@ void ProcessInput(uint8_t bank) {
 void ProcessOutput(uint8_t bank, uint32_t inputStart, uint32_t inputFinish) {
   // Widget controller
   State_t state = widget_control();
+
   if (bank != NOT_UPDATED && (state == STATE_MAIN || state == STATE_THERMOGRAPH)) {
     static uint32_t outputFinish, outputPeriod, prevStart;
     uint32_t outputStart = millis();
@@ -183,7 +184,7 @@ void ProcessOutput(uint8_t bank, uint32_t inputStart, uint32_t inputFinish) {
 
 void setup() {
   // Prevent blocking when the USB cable is not connected to PC
-  DBG_EXEC(Serial.begin(115200));
+  Serial.begin(115200);
   DBG_EXEC(delay(500));
 
   // Initialize peripherals
