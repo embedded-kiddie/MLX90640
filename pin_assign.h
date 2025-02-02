@@ -8,8 +8,11 @@
 /*--------------------------------------------------------------------------------
  * I2C pin assignment
  *--------------------------------------------------------------------------------*/
-// variants/jczn_2432s028r/pins_arduino.h
 #if defined (ARDUINO_ESP32_2432S028R)
+/**************************************************/
+/***** variants/jczn_2432s028r/pins_arduino.h *****/
+/**************************************************/
+// Note: SDA defined in pins_arduino.h conflicts with CYD_TFT_BL
 #define MLX_I2C_SDA D27 // GPIO27 on CN1
 #define MLX_I2C_SCL SCL // GPIO22 on CN1
 #endif
@@ -23,10 +26,10 @@
 /*--------------------------------------------------------------------------------
  * SPI pin assignment
  *--------------------------------------------------------------------------------*/
+#if defined (ARDUINO_ESP32_2432S028R)
 /**************************************************/
 /***** variants/jczn_2432s028r/pins_arduino.h *****/
 /**************************************************/
-#if defined (ARDUINO_ESP32_2432S028R)
 #define TFT_DC        CYD_TFT_DC      //  2
 #define TFT_MISO      CYD_TFT_MISO    // 12
 #define TFT_MOSI      CYD_TFT_MOSI    // 13
@@ -61,10 +64,10 @@
 #define SPI_READ_FREQUENCY  16000000  // 16 MHz
 #define SPI_TOUCH_FREQUENCY  1000000  //  1 MHz
 
+#elif defined (ARDUINO_XIAO_ESP32S3)
 /************************************************/
 /***** variants/XIAO_ESP32S3/pins_arduino.h *****/
 /************************************************/
-#elif defined (ARDUINO_XIAO_ESP32S3)
 #define TFT_SCLK      SCK       // D8  = 7
 #define TFT_MISO      MISO      // D9  = 8
 #define TFT_MOSI      MOSI      // D10 = 9
