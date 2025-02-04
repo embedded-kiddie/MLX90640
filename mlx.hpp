@@ -76,6 +76,9 @@ typedef struct MLXConfig {
 
     void filter_reset(void);
     filter_reset();
+
+    void interpolate_setup(const int);
+    interpolate_setup(interpolation);
   }
 } MLXConfig_t;
 

@@ -18,7 +18,7 @@
 #endif
 
 /*--------------------------------------------------------------------------------
- * Step 2: Configure Operational settings
+ * Step 2: Configure operational settings
  *--------------------------------------------------------------------------------*/
 #define ENA_INTERPOLATION   true  // Enable interpolation
 #define ENA_MULTITASKING    true  // Enable multi-task by FreeRTOS
@@ -52,10 +52,10 @@
  * Step 4: Configure flash memory setting to save touch calibration data
  * Preferences requires at least 2 partitions. Check the partition scheme on Tools.
  *--------------------------------------------------------------------------------*/
-#define USE_PREFERENCES true
+#define USE_PREFERENCES false
 
 /*--------------------------------------------------------------------------------
- * Configure MLX90640 settings
+ * Step 5: Configure resolution settings
  *--------------------------------------------------------------------------------*/
 #if ENA_INTERPOLATION
 #define INTERPOLATE_SCALE 8
@@ -193,9 +193,6 @@ void setup() {
   sdcard_setup();
   touch_setup();
   widget_setup();
-
-  // Initialize interpolation
-  interpolate_setup(mlx_cnf.interpolation);
 
 #if ENA_MULTITASKING
   // Start tasks
