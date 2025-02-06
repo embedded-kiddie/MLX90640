@@ -60,6 +60,15 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 
 ## Software Setup
 
+### Environment
+
+- Arduino IDE : [2.3.4][1]
+- ボードパッケージ : esp32 by Espressif Systems : [3.1.1][2]
+- MLX90640 ライブラリ : adafruit/Adafruit_MLX90640 [1.1.1][3]
+- グラフィックスライブラリ
+  - lovyan03/LovyanGFX : [1.2.0][4]
+  - Bodmer/TFT_eSPI : [2.5.43][5]
+
 ### File Structure and Dependencies
 
 ```
@@ -115,3 +124,44 @@ MLX90640.ino
 ## Related Project
 - [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
     The MLX90640Viewer is a tool that applies heatmaps and visualizes the output of the Melexis MLX90640 32x24 IR array, which is stored as continuous raw data in a file.
+
+## Resouces
+
+- [Melexis MLX90640][6]
+  - [Datasheet][7]
+    - I2C Frequency: 1MHz (Fast mode+)
+  - [Breakout board: GY-MCU90640][8]
+    - [Alliexpress][9]
+
+- [Seeed Studio XIAO ESP32S3][10]
+  - [ESP32-S3 Series Datasheet][11]
+  - [ESP32 Technical Reference Manual][12]
+
+- [witnessmenow/ESP32-Cheap-Yellow-Display][20]
+
+
+[1]: https://www.arduino.cc/en/software "Software｜Arduino"
+
+[2]: https://github.com/espressif/arduino-esp32/releases/tag/3.1.1 "Release Arduino Release v3.1.1 based on ESP-IDF v5.3.2 · espressif/arduino-esp32"
+
+[3]: https://github.com/adafruit/Adafruit_MLX90640 "adafruit/Adafruit_MLX90640: MLX90640 library functions"
+
+[4]: https://github.com/lovyan03/LovyanGFX/releases/tag/1.2.0 "Release 1.2.0 · lovyan03/LovyanGFX"
+
+[5]: https://github.com/Bodmer/TFT_eSPI/releases/tag/V2.5.43 "Release Bug fixes · Bodmer/TFT_eSPI"
+
+[6]: https://www.melexis.com/en/product/MLX90640/Far-Infrared-Thermal-Sensor-Array "Far Infrared Thermal Sensor Array (32x24 RES) I Melexis"
+
+[7]: https://www.melexis.com/en/documents/documentation/datasheets/datasheet-mlx90640 "Datasheet for MLX90640 I Melexis"
+
+[8]: https://github.com/vvkuryshev/GY-MCU90640-RPI-Python/blob/master/GY_MCU9064%20user%20manual%20v1.pdf "vvkuryshev/GY-MCU90640-RPI-Python: The script to connect the thermal image module GY-MCU90640 to Raspberry Pi."
+
+[9]: https://www.aliexpress.com/item/1005006674751991.html
+
+[10]: https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/ "Getting Started with Seeed Studio XIAO ESP32S3 (Sense) - Seeed Studio Wiki"
+
+[11]: https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf
+
+[12]: https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf
+
+[20]: https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display "witnessmenow/ESP32-Cheap-Yellow-Display: Building a community around a cheap ESP32 Display with a touch screen"
