@@ -80,25 +80,25 @@ MLX90640.ino
 │
 ├─ mlx.hpp
 ├─ gfx.hpp
-│   ├─ LovyanGFX.h
-│   │   └─ boards
-│   │        ├─ LGFX_CYD_2432S028R.hpp
-│   │        └─ LGFX_XIAO_ESP32S3_ST7789.hpp
-│   └─ TFT_eSPI.h
-│        ├─ User_Setup.h
-│        └─ boards
-│             ├─ Setup_CYD_2432S028R.h
-│             └─ Setup_XIAO_ESP32S3_ST7789.h
+│   │ <LovyanGFX.h>
+│   ├─ boards
+│   │   ├─ LGFX_CYD_2432S028R.hpp
+│   │   └─ LGFX_XIAO_ESP32S3_ST7789.hpp
+│   │ <TFT_eSPI.h>
+│   ├─ User_Setup.h
+│   └─ boards
+│       ├─ Setup_CYD_2432S028R.h
+│       └─ Setup_XIAO_ESP32S3_ST7789.h
 ├─ task.hpp
 ├─ touch.hpp
 ├─ sdcard.hpp
 ├─ filter.hpp
 ├─ interpolation.hpp
 └─ widget.hpp
-     ├─ draw.hpp
-     │   └─ marker.h
-     └─ widgets.hpp
-         └─ widgets.h
+    ├─ draw.hpp
+    │   └─ marker.h
+    └─ widgets.hpp
+        └─ widgets.h
 ```
 
 ### Configuration
