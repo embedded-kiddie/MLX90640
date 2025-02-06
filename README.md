@@ -1,4 +1,4 @@
-# MLX90640 Thermography Camera by XIAO ESP32S3
+# MLX90640 Thermography Camera for ESP32
 
 ## Description
 
