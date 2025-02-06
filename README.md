@@ -127,6 +127,8 @@ MLX90640.ino
 - [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
     The MLX90640Viewer is a tool that applies heatmaps and visualizes the output of the Melexis MLX90640 32x24 IR array, which is stored as continuous raw data in a file.
 
+- [MLX90640 for Arduino UNO R4][23]
+
 ## Resouces
 
 - [Melexis MLX90640][6]
@@ -171,3 +173,5 @@ MLX90640.ino
 [21]: https://github.com/espressif/arduino-esp32/tree/master/variants/XIAO_ESP32S3 "arduino-esp32/variants/XIAO_ESP32S3 at master · espressif/arduino-esp32"
 
 [22]: https://github.com/espressif/arduino-esp32/tree/master/variants/jczn_2432s028r "arduino-esp32/variants/jczn_2432s028r at master · espressif/arduino-esp32"
+
+[23]: https://github.com/embedded-kiddie/Arduino-UNO-R4/tree/main/MLX90640 "Arduino-UNO-R4/MLX90640 at main · embedded-kiddie/Arduino-UNO-R4"
