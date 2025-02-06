@@ -108,3 +108,10 @@ MLX90640.ino
   - Step4: Flash memory
     - `USE_PREFERENCES`
   - Step5: Resolution
+
+### Dual-Core Timing Diagram
+![Timing Diagram](images/TimingDiagram.png)
+
+## Related Project
+- [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
+    The MLX90640Viewer is a tool that applies heatmaps and visualizes the output of the Melexis MLX90640 32x24 IR array, which is stored as continuous raw data in a file.
