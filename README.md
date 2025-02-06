@@ -2,11 +2,9 @@
 
 ## Description
 
-Program for thermal imaging camera with MLX90640 far-infrared (IR) thermal sensor srray for ESP32-2432S028R and XIAO ESP32S3
+Program for thermal imaging camera with MLX90640 far-infrared (IR) thermal sensor srray for XIAO ESP32S3 and ESP32-2432S028R
 
 ## Features
-
-### Menu GUI
 
 It comes with a graphical user interface to properly configure the MLX90640 for different scenarios.
 
@@ -23,7 +21,25 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 - Offline video viewer: Offline video playback on PC
 - Touch screen: Calibration on the first launch / in the configuration menu.
 
+## Demo
+
+### File Explorer
+[![File Explorer](images/Demo-FileExplorer.gif)](https://youtu.be/9El-2NYCDNU)
+
+### MLX90640Viewer
+[![MLX90640Viewer](images/Demo-MLX90640Viewer.jpg)](https://youtu.be/FFbE1BNb92w)
+
 ## Hardware Setup
+
+<details>
+<summary>XIAO ESP32S3</summary>
+
+### Block Diagram
+![Block Diagram](images/XIAO-BlockDiagram.jpg)
+
+### Wiring
+![Wiring](images/XIAO-MLX90640.jpg)
+</details>
 
 <details>
 <summary>ESP32-2432S028R</summary>
@@ -34,16 +50,6 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 ### Li-Po Battery
 ![Schematics](images/CYD-P5.jpg)
 ![Li-Po and Booster](images/CYD-LiPo.jpg)
-</details>
-
-<details>
-<summary>XIAO ESP32S3</summary>
-
-### Block Diagram
-![Block Diagram](images/XIAO-BlockDiagram.jpg)
-
-### Wiring
-![Wiring](images/XIAO-MLX90640.jpg)
 </details>
 
 <details>
