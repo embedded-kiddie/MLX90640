@@ -60,14 +60,16 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 
 ## Software Setup
 
-### Environment
+### Requirements
 
 - Arduino IDE : [2.3.4][1]
-- ボードパッケージ : esp32 by Espressif Systems : [3.1.1][2]
-- MLX90640 ライブラリ : adafruit/Adafruit_MLX90640 [1.1.1][3]
-- グラフィックスライブラリ
-  - lovyan03/LovyanGFX : [1.2.0][4]
-  - Bodmer/TFT_eSPI : [2.5.43][5]
+- Board package : esp32 by Espressif Systems : [3.1.1][2]
+    - [XIAO_ESP32S3][21]
+    - [ESP32-2432S028R CYD][22]
+- Adafruit_MLX90640 [1.1.1][3]
+- GFX library
+  - LovyanGFX : [1.2.0][4]
+  - TFT_eSPI : [2.5.43][5]
 
 ### File Structure and Dependencies
 
@@ -165,3 +167,7 @@ MLX90640.ino
 [12]: https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf
 
 [20]: https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display "witnessmenow/ESP32-Cheap-Yellow-Display: Building a community around a cheap ESP32 Display with a touch screen"
+
+[21]: https://github.com/espressif/arduino-esp32/tree/master/variants/XIAO_ESP32S3 "arduino-esp32/variants/XIAO_ESP32S3 at master · espressif/arduino-esp32"
+
+[22]: https://github.com/espressif/arduino-esp32/tree/master/variants/jczn_2432s028r "arduino-esp32/variants/jczn_2432s028r at master · espressif/arduino-esp32"
