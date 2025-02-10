@@ -120,12 +120,12 @@ public:
   void calibrateTouch(uint16_t *cal, GFX_TYPE *tft, uint32_t color_fg, uint32_t color_bg) {
     tft->fillScreen(color_bg);
     tft->setTextColor(color_fg, color_bg);
+    tft->setTextSize(1);
 
 #if defined (_TFT_eSPIH_) || defined (LOVYANGFX_HPP_)
     tft->setTextDatum(CC_DATUM);
     tft->drawString("Touch the center of the cross", width / 2, height / 2, 2);
 #else // _ADAFRUIT_GFX_H or _ARDUINO_TFT_H_
-    tft->setTextSize(2);
     tft->setCursor((width - 30 * 12) / 2, (height - 16) / 2); // font size: 12x16
     tft->print("Touch the center of the cross");
 #endif
