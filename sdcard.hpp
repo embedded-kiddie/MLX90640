@@ -312,7 +312,7 @@ bool sdcard_setup(void) {
   }
 
 #if defined (ARDUINO_ESP32_2432S028R)
- // It works with LovyanGFX but not with TFT_eSPI.
+  // It works with LovyanGFX but not with TFT_eSPI.
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
 #endif
 
