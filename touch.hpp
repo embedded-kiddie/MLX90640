@@ -3,17 +3,11 @@
  *================================================================================*/
 
 /*--------------------------------------------------------------------------------
- * Touch panel calibration configuration
+ * Configuration data for calibration of touch panel
  *--------------------------------------------------------------------------------*/
 typedef struct TouchConfig {
   // Member variables
-#if   defined (LOVYANGFX_HPP_) || defined (_TFT_eSPIH_)
   uint16_t  cal[8];
-#elif defined (_XPT2046_Touchscreen_h_)
-  float     cal[8];
-#else
-#error Unsupported touch screen library
-#endif
   int8_t    offset[2];
 
   // Comparison operator
@@ -38,15 +32,15 @@ TouchConfig_t tch_cnf = {
   // LovyanGFX
   .cal = { 0, 0, 0, 0, 0, 0, 0, 0 },
 
-#elif defined (_TFT_eSPIH_)
+#elif defined (_XPT2046_Touchscreen_h_)
+
+  // XPT2046_Touchscreen
+  .cal = { 0, 0, 0, 0, 0, },
+
+#else
 
   // TFT_eSPI
   .cal = { 0, 0, 0, 0, 0, },
-
-#else // defined (_XPT2046_Touchscreen_h_)
-
-  // XPT2046_Touchscreen
-  .cal = { 0, },
 
 #endif
 
@@ -105,9 +99,24 @@ extern uint16_t lcd_width;
 extern uint16_t lcd_height;
 
 /*--------------------------------------------------------------------------------
+ * Touch panel instance for XPT2046_Touchscreen library
+ *--------------------------------------------------------------------------------*/
+#if defined (_XPT2046_Touchscreen_h_)
+#include "boards/XPT2046_ScreenPoint.h"
+static XPT2046_ScreenPoint sp(TOUCH_CS, TOUCH_IRQ);
+#endif
+
+/*--------------------------------------------------------------------------------
  * Setup touch manager
  *--------------------------------------------------------------------------------*/
 bool touch_setup(void) {
+#if defined (_XPT2046_Touchscreen_h_)
+  // Assign the CYD touch panel on a different SPI bus from that of the display.
+  static SPIClass sp_spi = SPIClass(TOUCH_SPI_BUS);
+  sp_spi.begin(TOUCH_CLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
+  sp.begin(sp_spi, lcd_width, lcd_height, SCREEN_ROTATION);
+#endif
+
 #if USE_PREFERENCES
   // Load calibration parameters from FLASH
   if (touch_load(&tch_cnf) == false) {
@@ -126,20 +135,16 @@ bool touch_setup(void) {
   GFX_EXEC(setTouchCalibrate(tch_cnf.cal));
   return true;
 
-#elif defined (_TFT_eSPIH_)
+#elif defined (_XPT2046_Touchscreen_h_)
+
+  sp.setTouch(static_cast<const uint16_t*>(tch_cnf.cal));
+  return true;
+
+#else // defined (_TFT_eSPIH_)
 
   // https://github.com/Bodmer/TFT_eSPI/tree/master/examples/Generic/Touch_calibrate
   GFX_EXEC(setTouch(tch_cnf.cal));
   return true;
-
-else  // defined (_XPT2046_Touchscreen_h_)
-
-  if (ts.begin()) {
-    ts.setRotation(SCREEN_ROTATION);
-    return true;
-  } else {
-    return false;
-  }
 
 #endif
 }
@@ -157,12 +162,7 @@ bool touch_event(Touch_t &touch) {
 
 #if defined (_XPT2046_Touchscreen_h_)
 
-  bool stat = ts.touched();
-  if (stat) {
-    TS_Point p = ts.getPoint();
-    x = p.x;
-    y = p.y;
-  }
+  bool stat = sp.getTouch(&x, &y);
 
 #else // LovyanGFX || TFT_eSPI
 
@@ -245,6 +245,16 @@ void touch_calibrate(TouchConfig_t *config) {
 
 #if   defined (_XPT2046_Touchscreen_h_)
 
+  extern TFT_eSPI tft;
+  sp.calibrateTouch(config->cal, &tft, TFT_WHITE, TFT_BLACK);
+
+  printf("\n// XPT2046\n");
+  printf(".cal = { ");
+  for (int i = 0; i < 5; ++i) {
+    printf("%d", config->cal[i]);
+    printf(i < 4 ? ", " : ", 0, },\n");
+  }
+
 #elif defined (LOVYANGFX_HPP_)
 
   // https://github.com/lovyan03/LovyanGFX/tree/master/examples/HowToUse/2_user_setting
@@ -257,7 +267,7 @@ void touch_calibrate(TouchConfig_t *config) {
 
   printf("\n// LovyanGFX\n");
   printf(".cal = { ");
-  for (uint8_t i = 0; i < 8; ++i) {
+  for (int i = 0; i < 8; ++i) {
     printf("%d", config->cal[i]);
     printf(i < 7 ? ", " : " },\n");
   }
@@ -274,9 +284,9 @@ void touch_calibrate(TouchConfig_t *config) {
 
   printf("\n// TFT_eSPI\n");
   printf(".cal = { ");
-  for (uint8_t i = 0; i < 5; ++i) {
+  for (int i = 0; i < 5; ++i) {
     printf("%d", config->cal[i]);
-    printf(i < 4 ? ", " : "0, },\n");
+    printf(i < 4 ? ", " : ", 0, },\n");
   }
 
 #endif
@@ -311,6 +321,8 @@ bool touch_save(TouchConfig_t *config) {
   if (touchPref.begin(PREF_KEY, RW_MODE) == false) {
     DBG_EXEC(printf("Preferences: begin(%s) failed.\n", PREF_KEY));
     return false;
+  } else {
+    DBG_EXEC(printf("Preferences: found %s.\n", PREF_KEY));
   }
 
   if (touchPref.putBytes("cal", static_cast<const void*>(config->cal), sizeof(config->cal)) != sizeof(config->cal)) {

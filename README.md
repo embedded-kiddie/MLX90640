@@ -42,7 +42,7 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 </details>
 
 <details>
-<summary>ESP32-2432S028R</summary>
+<summary>ESP32-2432S028R (AKA Cheap Yellow Display)</summary>
 
 ### Connecting MLX90640 to I2C
 ![Connecting MLX90640 to I2C with ESP32-2432S028R-MLX90640](images/CYD-CN1.jpg)

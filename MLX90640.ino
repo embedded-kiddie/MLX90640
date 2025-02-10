@@ -41,10 +41,13 @@
 #define USE_TFT_ESPI
 /*--------------------------------------------------------------------------------
  * TFT_eSPI
- * It does not allow the display and touch screen to be on different SPI buses.
+ * CYD requires a different XPT2046 library and does not work with SD card.
+ * https://github.com/Bodmer/TFT_eSPI/discussions/3123
+ * https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
+ * https://forum.arduino.cc/t/cyd-sd-issues-probably-due-to-touch-pins/1280758/3
  *--------------------------------------------------------------------------------*/
 #ifdef ARDUINO_ESP32_2432S028R
-#error Not yet supported  // CYD needs XPT2046_Touchscreen library
+#include <XPT2046_Touchscreen.h>
 #endif
 #endif
 

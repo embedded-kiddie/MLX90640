@@ -11,10 +11,6 @@
  * LovyanGFX
  * https://github.com/lovyan03/LovyanGFX
  *--------------------------------------------------------------------------------*/
-  #define SCREEN_ROTATION 3
-  #define GFX_EXEC(x) lcd.x
-  #define GFX_FAST(x) lcd_sprite.x
-
   /**************************************************/
   /***** variants/jczn_2432s028r/pins_arduino.h *****/
   /**************************************************/
@@ -48,6 +44,9 @@
  * TFT_eSPI
  * https://github.com/Bodmer/TFT_eSPI
  *--------------------------------------------------------------------------------*/
+  /**************************************************/
+  /************* Configure User_Setup.h *************/
+  /**************************************************/
   #include <TFT_eSPI.h>
 #endif
 
@@ -70,13 +69,19 @@ uint16_t lcd_height;
 LGFX lcd;
 LGFX_Sprite lcd_sprite(&lcd);
 
+#define SCREEN_ROTATION 3
+#define GFX_TYPE        LGFX
+#define GFX_INSTANCE    lcd
+#define GFX_EXEC(x)     lcd.x
+#define GFX_FAST(x)     lcd_sprite.x
+
 void gfx_setup(void) {
   GFX_EXEC(init());
-  GFX_EXEC(initDMA());
   GFX_EXEC(clear(TFT_BLACK));
   GFX_EXEC(setBrightness(128)); // 0 ~ 255
   GFX_EXEC(setRotation(SCREEN_ROTATION));
   GFX_EXEC(setTextColor(TFT_WHITE, TFT_BLACK));
+  GFX_EXEC(initDMA());
   lcd_width  = GFX_EXEC(width());
   lcd_height = GFX_EXEC(height());
 }
@@ -90,17 +95,19 @@ TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite tft_sprite(&tft);
 
 #define SCREEN_ROTATION 3
-#define GFX_EXEC(x) tft.x
-#define GFX_FAST(x) tft_sprite.x
-#define setClipRect setViewport
-#define clearClipRect resetViewport
+#define GFX_TYPE        TFT_eSPI
+#define GFX_INSTANCE    tft
+#define GFX_EXEC(x)     tft.x
+#define GFX_FAST(x)     tft_sprite.x
+#define setClipRect     setViewport
+#define clearClipRect   resetViewport
 
 void gfx_setup(void) {
   GFX_EXEC(init());
-  GFX_EXEC(initDMA(false)); // 'true' breaks SD card function
   GFX_EXEC(fillScreen(0));
   GFX_EXEC(setRotation(SCREEN_ROTATION));
   GFX_EXEC(setTextColor(TFT_WHITE, TFT_BLACK));
+  GFX_EXEC(initDMA(false)); // 'true' puts garbage on PNG images.
   lcd_width  = GFX_EXEC(width());
   lcd_height = GFX_EXEC(height());
 }

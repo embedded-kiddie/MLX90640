@@ -8,18 +8,10 @@
 /*--------------------------------------------------------------------------------
  * SPI bus and Graphics library
  *--------------------------------------------------------------------------------*/
-#if     defined (LOVYANGFX_HPP_)
-#define GFX_TYPE      LGFX
-#define GFX_INSTANCE  lcd // defined in gfx.hpp
-#define SD_CONFIG     SD_CS, SPI, SPI_SD_FREQUENCY
-
-#elif   defined (_TFT_eSPIH_)
-#define GFX_TYPE      TFT_eSPI
-#define GFX_INSTANCE  tft // defined in gfx.hpp
-#define SD_CONFIG     SD_CS, GFX_EXEC(getSPIinstance()), SPI_SD_FREQUENCY
-
+#if defined (_TFT_eSPIH_)
+#define SD_CONFIG SD_CS, GFX_EXEC(getSPIinstance()), SPI_SD_FREQUENCY
 #else
-#error Only TFT_eSPI and LovyanGFX are supported
+#define SD_CONFIG SD_CS, SPI, SPI_SD_FREQUENCY
 #endif
 
 // Temporary buffer size for string manipulation
@@ -318,6 +310,11 @@ bool sdcard_setup(void) {
   if (isMounted == true) {
     return true;
   }
+
+#if defined (ARDUINO_ESP32_2432S028R)
+ // It works with LovyanGFX but not with TFT_eSPI.
+  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+#endif
 
   if (SD.begin(SD_CONFIG)) {
     DBG_EXEC(printf("SD card is successfully mounted.\n"));

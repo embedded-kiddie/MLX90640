@@ -174,7 +174,7 @@
 //#define TFT_CS    PIN_D8  // Chip select control pin D8
 //#define TFT_DC    PIN_D3  // Data Command control pin
 //#define TFT_RST   PIN_D4  // Reset pin (could connect to NodeMCU RST, see next line)
-//#define TFT_RST  -1     // Set TFT_RST to -1 if the display RESET is connected to NodeMCU RST or 3.3V
+//#define TFT_RST   -1      // Set TFT_RST to -1 if the display RESET is connected to NodeMCU RST or 3.3V
 
 
 //#define TFT_BL PIN_D1  // LED back-light (only for ST7789 with backlight control pin)
@@ -239,23 +239,6 @@
 //#define TFT_DC   27  // Data Command control pin
 //#define TFT_RST  33  // Reset pin (could connect to Arduino RESET pin)
 //#define TFT_BL   32  // LED back-light (required for M5Stack)
-
-// variants/XIAO_ESP32S3/pins_arduino.h
-#if defined (ARDUINO_XIAO_ESP32S3)
-//#define TFT_SCLK      SCK   // D8  = 7
-//#define TFT_MISO      MISO  // D9  = 8
-//#define TFT_MOSI      MOSI  // D10 = 9
-//#define TFT_CS        D2
-//#define TFT_RST       D1
-//#define TFT_DC        D0
-//#define TOUCH_CS      D3
-//#define TOUCH_IRQ     D7
-//#define SD_CS         D6
-//#define SPI_MODE      SPI_MODE3 // SPI_MODE0, SPI_MODE2 or SPI_MODE3
-//#define SPI_FREQUENCY       80000000  // 80 MHz
-//#define SPI_READ_FREQUENCY   4000000  //  4 MHz
-//#define SPI_TOUCH_FREQUENCY   250000  // 250KHz
-#endif
 
 // ######       EDIT THE PINs BELOW TO SUIT YOUR ESP32 PARALLEL TFT SETUP        ######
 

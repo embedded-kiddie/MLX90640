@@ -44,7 +44,7 @@
 #define TOUCH_MISO    CYD_TP_MISO     // 39
 #define TOUCH_CLK     CYD_TP_CLK      // 25
 #define TOUCH_CS      CYD_TP_CS       // 33
-#define TOUCH_SPI_BUS -1              // CYD_TP_SPI_BUS (VSPI)
+#define TOUCH_SPI_BUS CYD_TP_SPI_BUS  // VSPI
 
 #define SD_CS         CYD_SD_SS       //  5
 #define SD_MOSI       CYD_SD_MOSI     // 23
@@ -61,8 +61,8 @@
 #define SPI_FREQUENCY       40000000  // 40 MHz (ILI9341)
 #endif
 #define SPI_SD_FREQUENCY    50000000  // 50 MHz
-#define SPI_READ_FREQUENCY  16000000  // 16 MHz
-#define SPI_TOUCH_FREQUENCY  1000000  //  1 MHz
+#define SPI_READ_FREQUENCY  20000000  // 20 MHz
+#define SPI_TOUCH_FREQUENCY  2500000  // 2.5 MHz
 
 #elif defined (ARDUINO_XIAO_ESP32S3)
 /************************************************/
