@@ -1495,6 +1495,9 @@ static void onCalibrationAdjust(const Widget_t *widget, const Touch_t &touch) {
 static void onCalibrationSave(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
+  // Only when using flash is true
+  enable_save &= USE_PREFERENCES;
+
   if (touch.event == EVENT_INIT) {
     DrawButton(widget, enable_save);
   }

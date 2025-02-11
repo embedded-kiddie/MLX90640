@@ -124,12 +124,28 @@ MLX90640.ino
     - `USE_PREFERENCES`
   - Step5: Resolution
 
-### Dual-Core Timing Diagram
+### Dual-Core / Multitask Timing Diagram
 ![Timing Diagram](images/TimingDiagram.png)
+
+## Touch Screen Calibration
+
+The “Calibration Screen” will appear when you run the sketch for the first time after compile & uploading, 
+or when you select to run calibration from the menu.
+
+<details>
+<summary>Calibration Screen</summary>
+
+![Calibration Screen](images/TouchCalibration.jpg)
+</details>
+
+If `USE_PREFERENCES` is set to `true`, you can save the calibration results to flash, but when it's set to `false`, 
+you need to open the serial monitor before running the calibration and embed the displayed data into `touch.hpp` 
+after calibration is completed.
 
 ## Related Project
 - [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
-    The MLX90640Viewer is a tool that applies heatmaps and visualizes the output of the Melexis MLX90640 32x24 IR array, which is stored as continuous raw data in a file.
+    The MLX90640Viewer is a tool that applies heatmaps and visualizes the output of the Melexis MLX90640 32x24 IR array, 
+    which is stored as continuous raw data in a file.
 
 - [MLX90640 for Arduino UNO R4][23]
 

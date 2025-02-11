@@ -248,7 +248,7 @@ void touch_calibrate(TouchConfig_t *config) {
   extern TFT_eSPI tft;
   sp.calibrateTouch(config->cal, &tft, TFT_WHITE, TFT_BLACK);
 
-  printf("\n// XPT2046\n");
+  printf("\n// XPT2046_Touchscreen\n");
   printf(".cal = { ");
   for (int i = 0; i < 5; ++i) {
     printf("%d", config->cal[i]);
