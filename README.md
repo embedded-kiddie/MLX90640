@@ -31,6 +31,8 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 
 ## Hardware Setup
 
+For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
+
 <details>
 <summary>XIAO ESP32S3</summary>
 
@@ -70,6 +72,8 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 - GFX library
   - LovyanGFX : [1.2.0][4]
   - TFT_eSPI : [2.5.43][5]
+- Touchscreen library
+  - XPT2046_Touchscreen : [Version 1.4][6] (only for TFT_eSPI)
 
 ### File Structure and Dependencies
 
@@ -131,15 +135,15 @@ MLX90640.ino
 
 ## Resouces
 
-- [Melexis MLX90640][6]
-  - [Datasheet][7]
+- [Melexis MLX90640][7]
+  - [Datasheet][8]
     - I2C Frequency: 1MHz (Fast mode+)
-  - [Breakout board: GY-MCU90640][8]
-    - [Alliexpress][9]
+  - [Breakout board: GY-MCU90640][9]
+    - [Alliexpress][10]
 
-- [Seeed Studio XIAO ESP32S3][10]
-  - [ESP32-S3 Series Datasheet][11]
-  - [ESP32 Technical Reference Manual][12]
+- [Seeed Studio XIAO ESP32S3][11]
+  - [ESP32-S3 Series Datasheet][12]
+  - [ESP32 Technical Reference Manual][13]
 
 - [witnessmenow/ESP32-Cheap-Yellow-Display][20]
 
@@ -154,19 +158,21 @@ MLX90640.ino
 
 [5]: https://github.com/Bodmer/TFT_eSPI/releases/tag/V2.5.43 "Release Bug fixes · Bodmer/TFT_eSPI"
 
-[6]: https://www.melexis.com/en/product/MLX90640/Far-Infrared-Thermal-Sensor-Array "Far Infrared Thermal Sensor Array (32x24 RES) I Melexis"
+[6]: https://github.com/PaulStoffregen/XPT2046_Touchscreen/releases/tag/v1.4 "Release Version 1.4 · PaulStoffregen/XPT2046_Touchscreen"
 
-[7]: https://www.melexis.com/en/documents/documentation/datasheets/datasheet-mlx90640 "Datasheet for MLX90640 I Melexis"
+[7]: https://www.melexis.com/en/product/MLX90640/Far-Infrared-Thermal-Sensor-Array "Far Infrared Thermal Sensor Array (32x24 RES) I Melexis"
 
-[8]: https://github.com/vvkuryshev/GY-MCU90640-RPI-Python/blob/master/GY_MCU9064%20user%20manual%20v1.pdf "vvkuryshev/GY-MCU90640-RPI-Python: The script to connect the thermal image module GY-MCU90640 to Raspberry Pi."
+[8]: https://www.melexis.com/en/documents/documentation/datasheets/datasheet-mlx90640 "Datasheet for MLX90640 I Melexis"
 
-[9]: https://www.aliexpress.com/item/1005006674751991.html
+[9]: https://github.com/vvkuryshev/GY-MCU90640-RPI-Python/blob/master/GY_MCU9064%20user%20manual%20v1.pdf "vvkuryshev/GY-MCU90640-RPI-Python: The script to connect the thermal image module GY-MCU90640 to Raspberry Pi."
 
-[10]: https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/ "Getting Started with Seeed Studio XIAO ESP32S3 (Sense) - Seeed Studio Wiki"
+[10]: https://www.aliexpress.com/item/1005006674751991.html
 
-[11]: https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf
+[11]: https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/ "Getting Started with Seeed Studio XIAO ESP32S3 (Sense) - Seeed Studio Wiki"
 
-[12]: https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf
+[12]: https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf
+
+[13]: https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf
 
 [20]: https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display "witnessmenow/ESP32-Cheap-Yellow-Display: Building a community around a cheap ESP32 Display with a touch screen"
 

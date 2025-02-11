@@ -383,6 +383,87 @@ static void DrawPress(const Widget_t *widget, Event_t event /* = EVENT_INIT */) 
   }
 }
 
+#if defined (_TFT_eSPIH_)
+/*--------------------------------------------------------------------------------
+ * A simplified version that displays a thumbnail of a bitmap image
+ *--------------------------------------------------------------------------------*/
+static uint16_t read16(File &f) {
+  uint16_t result;
+  ((uint8_t *)&result)[0] = f.read();
+  ((uint8_t *)&result)[1] = f.read();
+  return result;
+}
+
+static uint32_t read32(File &f) {
+  uint32_t result;
+  ((uint8_t *)&result)[0] = f.read();
+  ((uint8_t *)&result)[1] = f.read();
+  ((uint8_t *)&result)[2] = f.read();
+  ((uint8_t *)&result)[3] = f.read();
+  return result;
+}
+
+static bool drawBmpFile(fs::FS &fs, const char *path, int32_t x = 0, int32_t y = 0, int32_t maxWidth = 0, int32_t maxHeight = 0, int32_t offX = 0, int32_t offY = 0, float scale_x = 1.0f, float scale_y = 1.0f) {
+  uint32_t  bmpWidth, bmpHeight;
+  uint8_t   bmpDepth;
+  uint32_t  bmpImageoffset;
+  uint32_t  rowSize;
+  float     w, h;
+
+  File file = fs.open(path);
+  if (!file) {
+    return false;
+  }
+
+  read16(file);
+  read32(file);
+  read32(file);
+  bmpImageoffset = read32(file);
+  read32(file);
+  bmpWidth  = read32(file);
+  bmpHeight = read32(file);
+  bmpDepth  = read16(file);
+  rowSize   = (bmpWidth * 3 + 3) & ~3;
+
+  offX += x;
+  offY += y;
+  y = bmpHeight * scale_y;
+  w = h = 0.0f;
+
+  for (int row = 0; row < bmpHeight; ++row) {
+    h += scale_y;
+    if (h < 0.999f) {
+      continue;
+    }
+    h -= 1.0f;
+
+    uint32_t pos = bmpImageoffset + row * rowSize;
+    file.seek(pos);
+
+    uint8_t rgb[bmpWidth][3]; // assume 24bit color
+    file.read((uint8_t *)rgb, sizeof(rgb));
+
+    GFX_EXEC(startWrite());
+    x = 0; y--;
+    for (int col = 0; col < bmpWidth; ++col) {
+      w += scale_x;
+      if (w < 0.999f) {
+        continue;
+      }
+      w -= 1.0f;
+      uint8_t b = rgb[col][0];
+      uint8_t g = rgb[col][1];
+      uint8_t r = rgb[col][2];
+      GFX_EXEC(drawPixel(x + offX, y + offY, GFX_EXEC(color565(r, g, b))));
+      x++;
+    }
+    GFX_EXEC(endWrite());
+  }
+  file.close();
+  return true;
+}
+#endif
+
 /*--------------------------------------------------------------------------------
  * Draw an image from a bitmap file
  *--------------------------------------------------------------------------------*/
@@ -396,11 +477,19 @@ static void DrawThumb(const Widget_t *widget, const char *path) {
     path,
     widget->x, widget->y, widget->w, widget->h,
     0, 0,
-    0.4, 0.4  // 320 x 240 --> 128 x 96
+    0.4f, 0.4f  // 320 x 240 --> 128 x 96
   ));
 
 #else
-#warning Requires implementation in DrawThumb()
+
+  drawBmpFile(
+    SD,
+    path,
+    widget->x, widget->y, widget->w, widget->h,
+    0, 0,
+    0.4f, 0.4f  // 320 x 240 --> 128 x 96
+  );
+
 #endif
 }
 
