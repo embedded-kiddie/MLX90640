@@ -140,8 +140,8 @@ or when you select to run calibration from the menu.
 </details>
 
 If `USE_PREFERENCES` is set to `true`, you can save the calibration results to flash, but when it's set to `false`, 
-you need to open the serial monitor before running the calibration and embed the displayed data into [`touch.hpp`](https://github.com/embedded-kiddie/MLX90640/blob/main/touch.hpp#L25-L48) 
-after calibration is completed.
+you need to open the serial monitor before running the calibration and embed the displayed data into 
+[`touch.hpp`](https://github.com/embedded-kiddie/MLX90640/blob/main/touch.hpp#L25-L48) after calibration is completed.
 
 ## Related Project
 - [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
