@@ -73,7 +73,7 @@ For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
   - LovyanGFX : [1.2.0][4]
   - TFT_eSPI : [2.5.43][5]
 - Touchscreen library
-  - XPT2046_Touchscreen : [Version 1.4][6] (only for TFT_eSPI)
+  - XPT2046_Touchscreen : [Version 1.4][6] (only for TFT_eSPI on CYD)
 
 ### File Structure and Dependencies
 
@@ -92,7 +92,8 @@ MLX90640.ino
 │   ├─ User_Setup.h
 │   └─ boards
 │       ├─ Setup_CYD_2432S028R.h
-│       └─ Setup_XIAO_ESP32S3_ST7789.h
+│       ├─ Setup_XIAO_ESP32S3_ST7789.h
+│       └─ XPT2046_ScreenPoint.h
 ├─ task.hpp
 ├─ touch.hpp
 ├─ sdcard.hpp
