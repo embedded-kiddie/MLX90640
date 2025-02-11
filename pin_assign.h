@@ -44,13 +44,13 @@
 #define TOUCH_MISO    CYD_TP_MISO     // 39
 #define TOUCH_CLK     CYD_TP_CLK      // 25
 #define TOUCH_CS      CYD_TP_CS       // 33
-#define TOUCH_SPI_BUS CYD_TP_SPI_BUS  // VSPI
+#define TOUCH_SPI_BUS HSPI            // CYD_TP_SPI_BUS (VSPI) --> HSPI
 
 #define SD_CS         CYD_SD_SS       //  5
 #define SD_MOSI       CYD_SD_MOSI     // 23
 #define SD_MISO       CYD_SD_MISO     // 19
 #define SD_SCK        CYD_SD_SCK      // 18
-#define SD_SPI_BUS    CYD_SD_SPI_BUS  // VSPI
+#define SD_SPI_BUS    VSPI            // CYD_SD_SPI_BUS (VSPI)
 #define SPI_MODE      SPI_MODE0       // SPI_MODE0, SPI_MODE2 or SPI_MODE3
 
 // false: Panel driver: ILI9341 (micro-USB x 1 type)

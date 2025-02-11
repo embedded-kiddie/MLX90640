@@ -6,12 +6,17 @@
 #include "SPI.h"
 
 /*--------------------------------------------------------------------------------
- * SPI bus and Graphics library
+ * SPI bus assignment for SD
  *--------------------------------------------------------------------------------*/
-#if defined (_TFT_eSPIH_)
-#define SD_CONFIG SD_CS, GFX_EXEC(getSPIinstance()), SPI_SD_FREQUENCY
+#if defined (ARDUINO_ESP32_2432S028R)
+  static SPIClass sd_spi = SPIClass(SD_SPI_BUS);
+  #define SD_CONFIG SD_CS, sd_spi, SPI_SD_FREQUENCY
 #else
-#define SD_CONFIG SD_CS, SPI, SPI_SD_FREQUENCY
+  #if defined (_TFT_eSPIH_)
+    #define SD_CONFIG SD_CS, GFX_EXEC(getSPIinstance()), SPI_SD_FREQUENCY
+  #else
+    #define SD_CONFIG SD_CS, SPI, SPI_SD_FREQUENCY
+  #endif
 #endif
 
 // Temporary buffer size for string manipulation
@@ -312,8 +317,7 @@ bool sdcard_setup(void) {
   }
 
 #if defined (ARDUINO_ESP32_2432S028R)
-  // It works with LovyanGFX but not with TFT_eSPI.
-  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+  sd_spi.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
 #endif
 
   if (SD.begin(SD_CONFIG)) {

@@ -99,8 +99,7 @@ extern uint16_t lcd_width;
 extern uint16_t lcd_height;
 
 /*--------------------------------------------------------------------------------
- * Touch panel instance for XPT2046_Touchscreen library
- * Assign the CYD touch panel on a different SPI bus from that of the display.
+ * Instance of XPT2046_Touchscreen library
  *--------------------------------------------------------------------------------*/
 #if defined (_XPT2046_Touchscreen_h_)
 #include "boards/XPT2046_ScreenPoint.h"
@@ -112,6 +111,7 @@ static XPT2046_ScreenPoint sp(TOUCH_CS, TOUCH_IRQ);
  * Setup touch manager
  *--------------------------------------------------------------------------------*/
 bool touch_setup(void) {
+
 #if defined (_XPT2046_Touchscreen_h_)
   sp_spi.begin(TOUCH_CLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
   sp.begin(sp_spi, lcd_width, lcd_height, SCREEN_ROTATION);

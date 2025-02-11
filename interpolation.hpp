@@ -91,5 +91,6 @@ void interpolate_image(float *src, const int src_rows, const int src_cols, const
         }
       }
     }
+    yield(); // Prevent the watchdog from firing
   }
 }
