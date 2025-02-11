@@ -435,7 +435,7 @@ static bool drawBmpFile(fs::FS &fs, const char *path, int32_t x = 0, int32_t y =
     if (h < 0.999f) {
       continue;
     }
-    h -= 1.0f;
+    --h;
 
     uint32_t pos = bmpImageoffset + row * rowSize;
     file.seek(pos);
@@ -444,18 +444,18 @@ static bool drawBmpFile(fs::FS &fs, const char *path, int32_t x = 0, int32_t y =
     file.read((uint8_t *)rgb, sizeof(rgb));
 
     GFX_EXEC(startWrite());
-    x = 0; y--;
+    x = 0; --y;
     for (int col = 0; col < bmpWidth; ++col) {
       w += scale_x;
       if (w < 0.999f) {
         continue;
       }
-      w -= 1.0f;
+      --w;
       uint8_t b = rgb[col][0];
       uint8_t g = rgb[col][1];
       uint8_t r = rgb[col][2];
       GFX_EXEC(drawPixel(x + offX, y + offY, GFX_EXEC(color565(r, g, b))));
-      x++;
+      ++x;
     }
     GFX_EXEC(endWrite());
   }
