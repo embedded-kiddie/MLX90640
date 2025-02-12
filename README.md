@@ -125,8 +125,16 @@ MLX90640.ino
     - `USE_PREFERENCES`
   - Step5: Resolution
 
-### Dual-Core / Multitask Timing Diagram
-![Timing Diagram](images/TimingDiagram.png)
+### Dual-Core / Multitask
+
+It achieves parallel processing by utilizing multi-cores with FreeRTOS and double-buffering for thermal images.
+
+<details>
+<summary>Timing diagram</summary>
+
+- [Timing diagram (Drawio)](https://drive.google.com/file/d/1W-xelIn-PvofRw0Ya43I02ksVurOTiDk/view?usp=sharing)  
+  ![Timing diagram](images/TimingDiagram.png)
+</details>
 
 ## Touch Screen Calibration
 
