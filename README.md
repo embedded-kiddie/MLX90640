@@ -110,20 +110,21 @@ MLX90640.ino
 
 1. Depending on the board type, define pinouts of the I2C for MLX90640 and SPI for LCD / touch screen / SD card in `pin_assign.h`.
 
-2. Configure each step in `MLX90640.ino`
-  - Step1: Debugging mode
+2. Configure each step in `MLX90640.ino`. Generally, there is no need to change the default values.
+  - Step1: Debugging mode (default: `false`)
   - Step2: Operational specifications
-    - `ENA_INTERPOLATION`
-    - `ENA_MULTITASKING`
-    - `ENA_OUTWARD_CAMERA`
+    - `ENA_INTERPOLATION` (default: `true`)
+    - `ENA_MULTITASKING` (default: `true`)
+    - `ENA_OUTWARD_CAMERA` (`true`: Outward, `false`: Selfie)
   - Step3: GFX library
-    - `USE_LOVYAN_GFX`
-        - `USE_AUTODETECT` or manual settings
+    - `USE_LOVYAN_GFX` (default: `true`, highly recommended)
+        - `USE_AUTODETECT` (default: `true`, or manual settings)
     - `USE_TFT_ESPI`
-        - define `User_Setup.h`
+        - `User_Setup.h` definition required.
   - Step4: Flash memory
-    - `USE_PREFERENCES`
-  - Step5: Resolution
+    - `USE_PREFERENCES` (default: `false`, `true` is recommended.)
+  - Step5: Resolution  
+    For low performance MCUs. No modifications required.
 
 ### Dual-Core / Multitask
 
@@ -148,7 +149,7 @@ or when you select to run calibration from the menu.
 </details>
 
 If `USE_PREFERENCES` is set to `true`, you can save the calibration results to flash, but when it's set to `false`, 
-you need to open the serial monitor before running the calibration and embed the displayed data into 
+you need to open the serial monitor with **115200** bps before running the calibration and embed the displayed data into 
 [`touch.hpp`](https://github.com/embedded-kiddie/MLX90640/blob/main/touch.hpp#L25-L48) after calibration is completed.
 
 ## Related Project
