@@ -65,7 +65,8 @@ For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
 ### Requirements
 
 - Arduino IDE : [2.3.4][1]
-- Board package : esp32 by Espressif Systems : [3.1.1][2]
+- Board package : esp32 by Espressif Systems : [3.1.1][2]  
+  Board type:
     - [XIAO_ESP32S3][21]
     - [ESP32-2432S028R CYD][22]
 - Adafruit_MLX90640 [1.1.1][3]
