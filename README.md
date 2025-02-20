@@ -24,10 +24,14 @@ It comes with a graphical user interface to properly configure the MLX90640 for 
 ## Demo
 
 ### File Explorer
-[![File Explorer](images/Demo-FileExplorer.gif)](https://youtu.be/9El-2NYCDNU)
+<p align="center">
+  <a href="https://youtu.be/9El-2NYCDNU"><img alt="File Explorer" src="images/Demo-FileExplorer.gif" /></a>
+</p>
 
 ### MLX90640Viewer
-[![MLX90640Viewer](images/Demo-MLX90640Viewer.jpg)](https://youtu.be/FFbE1BNb92w)
+<p align="center">
+  <a href="https://youtu.be/FFbE1BNb92w"><img alt="MLX90640Viewer" src="images/Demo-MLX90640Viewer.jpg" width="285px" /></a>
+</p>
 
 ## Hardware Setup
 
@@ -40,7 +44,10 @@ For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
 ![Block Diagram](images/XIAO-BlockDiagram.jpg)
 
 ### Wiring
-![Wiring](images/XIAO-MLX90640.jpg)
+![Wiring](images/XIAO-Wiring.jpg)
+
+### Prototype
+![Prototype](images/XIAO-Prototype.jpg)
 </details>
 
 <details>
@@ -51,6 +58,8 @@ For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
 
 ### Li-Po Battery
 ![Schematics](images/CYD-P5.jpg)
+
+### Prototype
 ![Li-Po and Booster](images/CYD-LiPo.jpg)
 </details>
 
