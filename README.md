@@ -80,10 +80,11 @@ For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
     - [ESP32-2432S028R CYD][22]
 - Adafruit_MLX90640 [1.1.1][3]
 - GFX library
-  - LovyanGFX : [1.2.0][4]
+  - LovyanGFX : [1.2.0][4] or
   - TFT_eSPI : [2.5.43][5]
-- Touchscreen library
-  - XPT2046_Touchscreen : [Version 1.4][6] (only for TFT_eSPI on CYD)
+- Touchscreen library (only for TFT_eSPI on CYD)
+  - XPT2046_Touchscreen : [Version 1.4][6] or
+  - XPT2046_Bitbang_Slim : [v2.0.1][24]
 
 ### File Structure and Dependencies
 
@@ -127,10 +128,10 @@ MLX90640.ino
     - `ENA_MULTITASKING` (default: `true`)
     - `ENA_OUTWARD_CAMERA` (`true`: Outward, `false`: Selfie)
   - Step3: GFX library
-    - `USE_LOVYAN_GFX` (default: `true`, highly recommended)
+    - `USE_LOVYAN_GFX` (default: `true`, **highly recommended**)
         - `USE_AUTODETECT` (default: `true`, or manual settings)
     - `USE_TFT_ESPI`
-        - `User_Setup.h` definition required.
+        - `User_Setup.h` (definition required)
   - Step4: Flash memory
     - `USE_PREFERENCES` (default: `false`, `true` is recommended.)
   - Step5: Resolution  
@@ -230,3 +231,5 @@ When TFT_eSPI is selected on ESP32-2432S028R, rendering will be slower than Lovy
 [22]: https://github.com/espressif/arduino-esp32/tree/master/variants/jczn_2432s028r "arduino-esp32/variants/jczn_2432s028r at master · espressif/arduino-esp32"
 
 [23]: https://github.com/embedded-kiddie/Arduino-UNO-R4/tree/main/MLX90640 "Arduino-UNO-R4/MLX90640 at main · embedded-kiddie/Arduino-UNO-R4"
+
+[24]: https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library/releases/tag/v2.0.1 "Release v2.0.1 · TheNitek/XPT2046_Bitbang_Arduino_Library"
