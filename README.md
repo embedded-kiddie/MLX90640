@@ -166,10 +166,14 @@ you need to open the serial monitor with **115200** bps before running the calib
 
 When TFT_eSPI is selected on ESP32-2432S028R, rendering will be slower than LovyanGFX and screenshots can not be saved correctly.
 
+<details>
+<summary>Screenshot: LovyanGFX vs TFT_eSPI</summary>
+
 <p align="center">
   <img src="images/screenshot-LovyanGFX.png" width="45%" alt="Screenshot by LovyanGFX" title="Screenshot by LovyanGFX" />
   <img src="images/screenshot-TFT_eSPI.png" width="45%" alt="Screenshot by TFT_eSPI" title="Screenshot by TFT_eSPI" />
 </p>
+</details>
 
 ## Related Project
 - [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
