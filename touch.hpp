@@ -32,7 +32,7 @@ TouchConfig_t tch_cnf = {
   // LovyanGFX
   .cal = { 0, 0, 0, 0, 0, 0, 0, 0 },
 
-#elif defined (_XPT2046_Touchscreen_h_)
+#elif defined (_XPT2046_SCREENPOINT_H_)
 
   // XPT2046_Touchscreen
   .cal = { 0, 0, 0, 0, 0, },
@@ -107,6 +107,11 @@ static SPIClass sp_spi = SPIClass(TOUCH_SPI_BUS);
 static XPT2046_ScreenPoint sp(TOUCH_CS, TOUCH_IRQ);
 #endif
 
+#if defined (XPT2046_Bitbang_h)
+#include "boards/XPT2046_ScreenPoint.h"
+static XPT2046_ScreenPoint sp(TOUCH_MOSI, TOUCH_MISO, TOUCH_CLK, TOUCH_CS);
+#endif
+
 /*--------------------------------------------------------------------------------
  * Setup touch manager
  *--------------------------------------------------------------------------------*/
@@ -115,6 +120,10 @@ bool touch_setup(void) {
 #if defined (_XPT2046_Touchscreen_h_)
   sp_spi.begin(TOUCH_CLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
   sp.begin(sp_spi, lcd_width, lcd_height, SCREEN_ROTATION);
+#endif
+
+#if defined (XPT2046_Bitbang_h)
+  sp.begin(lcd_width, lcd_height, SCREEN_ROTATION);
 #endif
 
 #if USE_PREFERENCES
@@ -135,7 +144,7 @@ bool touch_setup(void) {
   GFX_EXEC(setTouchCalibrate(tch_cnf.cal));
   return true;
 
-#elif defined (_XPT2046_Touchscreen_h_)
+#elif defined (_XPT2046_SCREENPOINT_H_)
 
   sp.setTouch(static_cast<const uint16_t*>(tch_cnf.cal));
   return true;
@@ -160,7 +169,7 @@ bool touch_event(Touch_t &touch) {
   static uint8_t count;
   Event_t event = EVENT_NONE;
 
-#if defined (_XPT2046_Touchscreen_h_)
+#if defined (_XPT2046_SCREENPOINT_H_)
 
   bool stat = sp.getTouch(&x, &y);
 
@@ -168,7 +177,7 @@ bool touch_event(Touch_t &touch) {
 
   bool stat = GFX_EXEC(getTouch(&x, &y));
 
-#endif // _XPT2046_Touchscreen_h_
+#endif // _XPT2046_SCREENPOINT_H_
 
   // when state changes, check again after a certain period of time
   uint32_t dt = time - prev_time;
@@ -243,7 +252,7 @@ void touch_calibrate(TouchConfig_t *config) {
     Serial.begin(115200);
   }
 
-#if   defined (_XPT2046_Touchscreen_h_)
+#if   defined (_XPT2046_SCREENPOINT_H_)
 
   extern TFT_eSPI tft;
   sp.calibrateTouch(config->cal, &tft, TFT_WHITE, TFT_BLACK);
@@ -306,7 +315,7 @@ void touch_calibrate(TouchConfig_t *config) {
 #define RO_MODE   true
 #define INIT_KEY  "initialized"
 
-#if     defined   (_XPT2046_Touchscreen_h_)
+#if     defined   (_XPT2046_SCREENPOINT_H_)
 #define PREF_KEY  "XPT2046"
 #elif   defined   (LOVYANGFX_HPP_)
 #define PREF_KEY  "LovyanGFX"

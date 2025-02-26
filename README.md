@@ -162,6 +162,15 @@ If `USE_PREFERENCES` is set to `true`, you can save the calibration results to f
 you need to open the serial monitor with **115200** bps before running the calibration and embed the displayed data into 
 [`touch.hpp`](https://github.com/embedded-kiddie/MLX90640/blob/main/touch.hpp#L25-L48) after calibration is completed.
 
+## Known Issue
+
+When TFT_eSPI is selected on ESP32-2432S028R, rendering will be slower than LovyanGFX and screenshots can not be saved correctly.
+
+<p align="center">
+  <img src="images/screenshot-LovyanGFX.png" width="45%" alt="Screenshot by LovyanGFX" title="Screenshot by LovyanGFX" />
+  <img src="images/screenshot-TFT_eSPI.png" width="45%" alt="Screenshot by TFT_eSPI" title="Screenshot by TFT_eSPI" />
+</p>
+
 ## Related Project
 - [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
     The MLX90640Viewer is a tool that applies heatmaps and visualizes the output of the Melexis MLX90640 32x24 IR array, 

@@ -1,9 +1,10 @@
-/*----------------------------------------------------------------------
- * Touch screen calibration for XPT2046_Touchscreen
+/*----------------------------------------------------------------------------
+ * A wrapper class for the touchscreen libraries that supports 
+ * calibration of the touch panel and rotation of the screen
  *
  * This program is based on the following article:
  * https://bytesnbits.co.uk/arduino-touchscreen-calibration-coding/
- *----------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 #ifndef _XPT2046_SCREENPOINT_H_
 #define _XPT2046_SCREENPOINT_H_
 
@@ -28,12 +29,40 @@
 #error use LovyanGFX, TFT_eSPI, Adafruit_GFX or GFX_Library_for_Arduino
 #endif
 
+#if defined (_XPT2046_Touchscreen_h_)
+/*************************************************/
+/**** Inherits from XPT2046_Touchscreen class ****/
+/*************************************************/
+#define PARENT_CLASS  XPT2046_Touchscreen
+#define SCREEN_POINT  TS_Point
+#define SP_RAW_X(p)   p.x
+#define SP_RAW_Y(p)   p.y
+#define SP_RAW_Z(p)   p.z
+
+#define Z_THRESHOLD 600
+#endif // _XPT2046_Touchscreen_h_
+
+#if defined (XPT2046_Bitbang_h)
+/*************************************************/
+/****** Inherits from XPT2046_Bitbang class ******/
+/*************************************************/
+#define PARENT_CLASS  XPT2046_Bitbang
+#define SCREEN_POINT  TouchPoint
+#define SP_RAW_X(p)   p.xRaw
+#define SP_RAW_Y(p)   p.yRaw
+#define SP_RAW_Z(p)   p.zRaw
+
+#define N_SAMPLES   4
+#define N_THRESHOLD 3
+#define Z_THRESHOLD 600
+#endif // XPT2046_Bitbang_h
+
 /*----------------------------------------------------------------------
- * Defining the class that inherits from XPT2046_Touchscreen class
+ * Defining the class that inherits from XPT2046 libraries
  *----------------------------------------------------------------------*/
-class XPT2046_ScreenPoint : public XPT2046_Touchscreen {
+class XPT2046_ScreenPoint : public PARENT_CLASS {
   // Inheriting constructor from the parent class
-  using XPT2046_Touchscreen::XPT2046_Touchscreen;
+  using PARENT_CLASS::PARENT_CLASS;
 
 private:
   bool calibrated = false;
@@ -42,13 +71,17 @@ private:
   float xCalM = 0.0, yCalM = 0.0;  // gradients
   float xCalC = 0.0, yCalC = 0.0;  // y axis crossing points
 
+#if defined (_XPT2046_Touchscreen_h_)
+  /*************************************************/
+  /**** Inherits from XPT2046_Touchscreen class ****/
+  /*************************************************/
 public:
   void setRotation(uint8_t r) {
-    XPT2046_Touchscreen::setRotation(rotation = r % 4);
+    PARENT_CLASS::setRotation(rotation = r % 4);
   }
 
   void begin(SPIClass &spi, uint16_t w, uint16_t h, uint8_t r = 0) {
-    XPT2046_Touchscreen::begin(spi);
+    PARENT_CLASS::begin(spi);
     setRotation(r);
     width  = w;
     height = h;
@@ -57,6 +90,102 @@ public:
   void begin(uint16_t w, uint16_t h, uint8_t r = 0) {
     begin(SPI, w, h, r);
   }
+#endif // _XPT2046_Touchscreen_h_
+
+#if defined (XPT2046_Bitbang_h)
+  /*************************************************/
+  /****** Inherits from XPT2046_Bitbang class ******/
+  /*************************************************/
+
+  // Smirnov-Grubbs criterion
+  static SCREEN_POINT filter(SCREEN_POINT *p) {
+    uint16_t xRaw, yRaw, zRaw;
+
+    xRaw = yRaw = zRaw = 0;
+    for (int i = 0; i < N_SAMPLES; ++i) {
+      xRaw += SP_RAW_X(p[i]);
+      yRaw += SP_RAW_Y(p[i]);
+      zRaw += SP_RAW_Z(p[i]);
+    }
+
+    xRaw /= N_SAMPLES;
+    yRaw /= N_SAMPLES;
+    zRaw /= N_SAMPLES;
+
+    uint16_t n, x, y, z;
+    n = x = y = z = 0;
+    for (int i = 0; i < N_SAMPLES; i++) {
+      if (abs(xRaw - SP_RAW_X(p[i])) <= N_THRESHOLD && abs(yRaw - SP_RAW_Y(p[i])) <= N_THRESHOLD) {
+        x += SP_RAW_X(p[i]);
+        y += SP_RAW_Y(p[i]);
+        z += SP_RAW_Z(p[i]);
+        n++;
+      }
+    }
+
+    if (n > 0) {
+      x /= n;
+      y /= n;
+      z /= n;
+    }
+
+    return SCREEN_POINT {0, 0, x, y, z};
+  }
+
+public:
+  void setRotation(uint8_t r) {
+    rotation = r % 4;
+  }
+
+  void begin(uint16_t w, uint16_t h, uint8_t r = 0) {
+    PARENT_CLASS::begin();
+    setRotation(r);
+    width  = w;
+    height = h;
+  }
+
+  void begin(void) {
+    begin();
+  }
+
+  bool touched(void) {
+    SCREEN_POINT p = PARENT_CLASS::getTouch();
+    return (SP_RAW_Z(p) >= Z_THRESHOLD);
+  }
+
+  SCREEN_POINT getPoint(void) {
+    SCREEN_POINT p[N_SAMPLES], q, r;
+
+    for (int i = 0; i < N_SAMPLES; i++) {
+      p[i] = PARENT_CLASS::getTouch();
+    }
+
+    // Filter outliers
+    q = filter(p);
+
+		switch (rotation) {
+      case 0:
+        SP_RAW_X(r) = 4095 - SP_RAW_Y(q);
+        SP_RAW_Y(r) = SP_RAW_X(q);
+        break;
+      case 1:
+        SP_RAW_X(r) = SP_RAW_X(q);
+        SP_RAW_Y(r) = SP_RAW_Y(q);
+        break;
+      case 2:
+        SP_RAW_X(r) = SP_RAW_Y(q);
+        SP_RAW_Y(r) = 4095 - SP_RAW_X(q);
+        break;
+      default: // 3
+        SP_RAW_X(r) = 4095 - SP_RAW_X(q);
+        SP_RAW_Y(r) = 4095 - SP_RAW_Y(q);
+        break;
+		}
+    SP_RAW_Z(r) = SP_RAW_Z(q);
+    r.x = r.y = 0;
+    return r;
+  }
+#endif // XPT2046_Bitbang_h
 
   bool setTouch(const uint16_t *cal) {
     if (cal[4] == rotation) {
@@ -82,37 +211,34 @@ public:
     return calibrated;
   }
 
-  bool getTouch(uint16_t *x, uint16_t *y, uint16_t threshold = 600) {
-    if (touched()) {
-      TS_Point p = getPoint();
-
-      if (p.z >= threshold) {
-        if (calibrated) {
-          int16_t xCoord = round((p.x * xCalM) + xCalC);
-          int16_t yCoord = round((p.y * yCalM) + yCalC);
-    
-          if (xCoord < 0) xCoord = 0; else
-          if (xCoord >= width ) xCoord = width  - 1;
-          if (yCoord < 0) yCoord = 0; else
-          if (yCoord >= height) yCoord = height - 1;
-    
-          *x = xCoord;
-          *y = yCoord;
-        } else {
-          // https://randomnerdtutorials.com/lvgl-cheap-yellow-display-esp32-2432s028r/
-          static const struct {
-            uint16_t xmin, xmax, ymin, ymax;
-          } cal[4] = {
-            {240, 3800, 200, 3700},
-            {200, 3700, 240, 3800},
-            {260, 3850, 300, 3950},
-            {300, 3950, 260, 3850}
-          };
-          *x = map(p.x, cal[rotation].xmin, cal[rotation].xmax, 0, width );
-          *y = map(p.y, cal[rotation].ymin, cal[rotation].ymax, 0, height);
-        }
-        return true;
+  bool getTouch(uint16_t *x, uint16_t *y, uint16_t threshold = Z_THRESHOLD) {
+    SCREEN_POINT gp = getPoint();
+    if (SP_RAW_Z(gp) >= threshold) {
+      if (calibrated) {
+        int16_t xCoord = round((SP_RAW_X(gp) * xCalM) + xCalC);
+        int16_t yCoord = round((SP_RAW_Y(gp) * yCalM) + yCalC);
+  
+        if (xCoord < 0) xCoord = 0; else
+        if (xCoord >= width ) xCoord = width  - 1;
+        if (yCoord < 0) yCoord = 0; else
+        if (yCoord >= height) yCoord = height - 1;
+  
+        *x = xCoord;
+        *y = yCoord;
+      } else {
+        // https://randomnerdtutorials.com/lvgl-cheap-yellow-display-esp32-2432s028r/
+        static const struct {
+          uint16_t xmin, xmax, ymin, ymax;
+        } cal[4] = {
+          {240, 3800, 200, 3700},
+          {200, 3700, 240, 3800},
+          {260, 3850, 300, 3950},
+          {300, 3950, 260, 3850}
+        };
+        *x = map(SP_RAW_X(gp), cal[rotation].xmin, cal[rotation].xmax, 0, width );
+        *y = map(SP_RAW_Y(gp), cal[rotation].ymin, cal[rotation].ymax, 0, height);
       }
+      return true;
     }
     return false;
   }
@@ -138,9 +264,13 @@ public:
     while (!touched());
     delay(50); // wait for touch being stable
 
-    TS_Point p = getPoint();
-    cal[0] = p.x;
-    cal[1] = p.y;
+    SCREEN_POINT p;
+    do {
+      p = getPoint();
+    } while (SP_RAW_Z(p) < Z_THRESHOLD);
+
+    cal[0] = SP_RAW_X(p);
+    cal[1] = SP_RAW_Y(p);
     tft->drawFastHLine(10, 20, 20, color_bg);
     tft->drawFastVLine(20, 10, 20, color_bg);
 
@@ -153,9 +283,12 @@ public:
     while (!touched());
     delay(50); // wait for touch being stable
 
-    p = getPoint();
-    cal[2] = p.x;
-    cal[3] = p.y;
+    do {
+      p = getPoint();
+    } while (SP_RAW_Z(p) < Z_THRESHOLD);
+
+    cal[2] = SP_RAW_X(p);
+    cal[3] = SP_RAW_Y(p);
     tft->drawFastHLine(width - 30, height - 20, 20, color_bg);
     tft->drawFastVLine(width - 20, height - 30, 20, color_bg);
 

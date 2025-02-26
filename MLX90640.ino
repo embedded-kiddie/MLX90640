@@ -48,9 +48,8 @@
  * https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/discussions/88
  * https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
  *--------------------------------------------------------------------------------*/
-#ifdef ARDUINO_ESP32_2432S028R
-#include <XPT2046_Touchscreen.h>
-#endif
+//#include <XPT2046_Touchscreen.h>
+#include <XPT2046_Bitbang.h>
 #endif
 
 /*--------------------------------------------------------------------------------
