@@ -400,3 +400,9 @@
 // so changing it here has no effect
 
 // #define SUPPORT_TRANSACTIONS
+
+// Allocate a memory area for the Sprite
+// https://github.com/Bodmer/TFT_eSPI/blob/master/Extensions/Sprite.cpp#L165-L172
+//#if defined (CONFIG_SPIRAM) && (CONFIG_SPIRAM == 1) && !defined (CONFIG_SPIRAM_SUPPORT)
+//#define CONFIG_SPIRAM_SUPPORT // originally defined as CONFIG_SPIRAM in esp-idf sdkconfig
+//#endif
