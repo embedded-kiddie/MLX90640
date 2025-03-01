@@ -22,7 +22,7 @@
     // false: (micro-USB x 1 type, ILI9341)
     // true : (micro-USB x 1 + USB-C x 1 type, ST7789)
     #define DISPLAY_CYD_2USB  true
-    #include "./boards/LGFX_CYD_2432S028R.hpp"
+    #include "./boards/LGFX_ESP32_2432S028R_CYD.hpp"
     #endif
 
   /************************************************/
