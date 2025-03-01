@@ -19,7 +19,6 @@
     #define LGFX_AUTODETECT
     #include <LovyanGFX.h>
     #else
-    #include <LovyanGFX.h>
     // false: (micro-USB x 1 type, ILI9341)
     // true : (micro-USB x 1 + USB-C x 1 type, ST7789)
     #define DISPLAY_CYD_2USB  true
@@ -30,7 +29,6 @@
   /***** variants/XIAO_ESP32S3/pins_arduino.h *****/
   /************************************************/
   #elif defined (ARDUINO_XIAO_ESP32S3)
-    #include <LovyanGFX.h>
     #include "./boards/LGFX_XIAO_ESP32S3_ST7789.hpp"
 
   /***************************************************/
