@@ -11,7 +11,7 @@
 // false: Panel driver: ILI9341 (micro-USB x 1 type)
 // true : Panel driver: ST7789  (micro-USB x 1 + USB-C x 1 type)
 #define DISPLAY_CYD_2USB  true
-#include "./boards/Setup_CYD_2432S028R.h"
+#include "./boards/Setup_ESP32_2432S028R_CYD.h"
 
 #elif defined (ARDUINO_XIAO_ESP32S3)
 /************************************************/
