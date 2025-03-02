@@ -1,7 +1,5 @@
 #pragma once
 
-#define LGFX_USE_V1
-
 #include <LovyanGFX.hpp>
 
 // Example of settings for LovyanGFX on ESP32

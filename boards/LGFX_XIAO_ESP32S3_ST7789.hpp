@@ -1,6 +1,5 @@
 #pragma once
 
-#define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 
 // Configuration to share the SPI bus host with SD
