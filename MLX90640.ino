@@ -48,8 +48,9 @@
  * https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/discussions/88
  * https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
  *--------------------------------------------------------------------------------*/
-//#include <XPT2046_Touchscreen.h>
-#include <XPT2046_Bitbang.h>
+  #if defined (ARDUINO_ESP32_2432S028R)
+    #include <XPT2046_Bitbang.h>
+  #endif
 #endif
 
 /*--------------------------------------------------------------------------------
@@ -194,8 +195,8 @@ void setup() {
   // Initialize peripherals
   mlx_setup();
   gfx_setup();
-  sdcard_setup();
   touch_setup();
+  sdcard_setup();
   widget_setup();
 
 #if ENA_MULTITASKING

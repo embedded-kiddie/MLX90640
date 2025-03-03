@@ -274,19 +274,17 @@ bool SaveBMP24(fs::FS &fs, const char *path, GFX_TYPE &tft) {
     tft.readRectRGB(0, y, w, 1, (uint8_t*)rgb);
 
     for (int i = 0; i < sizeof(rgb); i += 3) {
-#if defined (TFT_RGB_ORDER) && (TFT_RGB_ORDER == TFT_BGR)
+  #if defined (TFT_RGB_ORDER) && (TFT_RGB_ORDER == TFT_BGR)
       RGB_SWAP(uint8_t, rgb[i+1], rgb[i+2]);
-      rgb[i  ] <<= (RGB_CORRECTION + 1);
-      rgb[i+1] <<= (RGB_CORRECTION + 1);
-      rgb[i+2] <<= (RGB_CORRECTION + 1);
-#else
+  #else
       RGB_SWAP(uint8_t, rgb[i+0], rgb[i+2]);
+  #endif
+
   #if RGB_CORRECTION
       rgb[i  ] <<= RGB_CORRECTION;
       rgb[i+1] <<= RGB_CORRECTION;
       rgb[i+2] <<= RGB_CORRECTION;
   #endif
-#endif
     }
 
 #endif // LovyanGFX or TFT_eSPI
