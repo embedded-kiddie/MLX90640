@@ -187,13 +187,13 @@ public:
   }
 
   bool touched(void) {
-    SCREEN_POINT p = getPoint(); // PARENT_CLASS::getTouch();
+    auto p = getPoint(); // PARENT_CLASS::getTouch();
     return (SP_RAW_Z(p) >= Z_THRESHOLD);
   }
 #endif // XPT2046_Bitbang_h
 
   bool getTouch(uint16_t *x, uint16_t *y, uint16_t threshold = Z_THRESHOLD) {
-    SCREEN_POINT gp = getPoint();
+    auto gp = getPoint();
     if (SP_RAW_Z(gp) >= threshold) {
       if (calibrated) {
         int16_t xCoord = round((SP_RAW_X(gp) * xCalM) + xCalC);
