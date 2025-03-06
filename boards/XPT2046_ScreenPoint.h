@@ -53,7 +53,7 @@
 #define SP_RAW_Z(p)   p.zRaw
 
 #define N_SAMPLES   4
-#define N_THRESHOLD 3
+#define N_THRESHOLD 50
 #define Z_THRESHOLD 600
 #endif // XPT2046_Bitbang_h
 
@@ -96,26 +96,31 @@ public:
   /*************************************************/
   /****** Inherits from XPT2046_Bitbang class ******/
   /*************************************************/
+  #include <vector>
+  #include <algorithm>
 
   // Smirnov-Grubbs criterion
   static SCREEN_POINT filter(SCREEN_POINT *p) {
-    uint16_t xRaw, yRaw, zRaw;
-
-    xRaw = yRaw = zRaw = 0;
+    std::vector<uint16_t> xRaw, yRaw;
     for (int i = 0; i < N_SAMPLES; ++i) {
-      xRaw += SP_RAW_X(p[i]);
-      yRaw += SP_RAW_Y(p[i]);
-      zRaw += SP_RAW_Z(p[i]);
+      xRaw.push_back(SP_RAW_X(p[i]));
+      yRaw.push_back(SP_RAW_Y(p[i]));
     }
+    std::sort(xRaw.begin(), xRaw.end());
+    std::sort(yRaw.begin(), yRaw.end());
 
-    xRaw /= N_SAMPLES;
-    yRaw /= N_SAMPLES;
-    zRaw /= N_SAMPLES;
+    uint16_t xMed, yMed;
+    for (int i = 1; i < N_SAMPLES - 1; ++i) {
+      xMed += xRaw[i];
+      yMed += yRaw[i];
+    }
+    xMed /= (N_SAMPLES - 2);
+    yMed /= (N_SAMPLES - 2);
 
     uint16_t n, x, y, z;
     n = x = y = z = 0;
     for (int i = 0; i < N_SAMPLES; i++) {
-      if (abs(xRaw - SP_RAW_X(p[i])) <= N_THRESHOLD && abs(yRaw - SP_RAW_Y(p[i])) <= N_THRESHOLD) {
+      if (abs(xMed - SP_RAW_X(p[i])) <= N_THRESHOLD && abs(yMed - SP_RAW_Y(p[i])) <= N_THRESHOLD) {
         x += SP_RAW_X(p[i]);
         y += SP_RAW_Y(p[i]);
         z += SP_RAW_Z(p[i]);
@@ -146,11 +151,6 @@ public:
 
   void begin(void) {
     begin();
-  }
-
-  bool touched(void) {
-    SCREEN_POINT p = PARENT_CLASS::getTouch();
-    return (SP_RAW_Z(p) >= Z_THRESHOLD);
   }
 
   SCREEN_POINT getPoint(void) {
@@ -185,31 +185,12 @@ public:
     r.x = r.y = 0;
     return r;
   }
-#endif // XPT2046_Bitbang_h
 
-  bool setTouch(const uint16_t *cal) {
-    if (cal[4] == rotation) {
-      int16_t x1, y1, x2, y2;
-      int16_t xDist = width - 40;
-      int16_t yDist = height - 40;
-
-      x1 = cal[0];
-      y1 = cal[1];
-      x2 = cal[2];
-      y2 = cal[3];
-
-      // translate in form pos = m x val + c
-      xCalM = (float)xDist / (float)(x2 - x1);
-      xCalC = 20.0 - ((float)x1 * xCalM);
-
-      yCalM = (float)yDist / (float)(y2 - y1);
-      yCalC = 20.0 - ((float)y1 * yCalM);
-
-      calibrated = true;
-    }
-
-    return calibrated;
+  bool touched(void) {
+    SCREEN_POINT p = getPoint(); // PARENT_CLASS::getTouch();
+    return (SP_RAW_Z(p) >= Z_THRESHOLD);
   }
+#endif // XPT2046_Bitbang_h
 
   bool getTouch(uint16_t *x, uint16_t *y, uint16_t threshold = Z_THRESHOLD) {
     SCREEN_POINT gp = getPoint();
@@ -241,6 +222,30 @@ public:
       return true;
     }
     return false;
+  }
+
+  bool setTouch(const uint16_t *cal) {
+    if (cal[4] == rotation) {
+      int16_t x1, y1, x2, y2;
+      int16_t xDist = width - 40;
+      int16_t yDist = height - 40;
+
+      x1 = cal[0];
+      y1 = cal[1];
+      x2 = cal[2];
+      y2 = cal[3];
+
+      // translate in form pos = m x val + c
+      xCalM = (float)xDist / (float)(x2 - x1);
+      xCalC = 20.0 - ((float)x1 * xCalM);
+
+      yCalM = (float)yDist / (float)(y2 - y1);
+      yCalC = 20.0 - ((float)y1 * yCalM);
+
+      calibrated = true;
+    }
+
+    return calibrated;
   }
 
   void calibrateTouch(uint16_t *cal, GFX_TYPE *tft, uint32_t color_fg, uint32_t color_bg) {
