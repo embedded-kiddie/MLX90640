@@ -163,7 +163,7 @@ public:
     // Filter outliers
     q = filter(p);
 
-		switch (rotation) {
+    switch (rotation) {
       case 0:
         SP_RAW_X(r) = 4095 - SP_RAW_Y(q);
         SP_RAW_Y(r) = SP_RAW_X(q);
@@ -180,7 +180,7 @@ public:
         SP_RAW_X(r) = 4095 - SP_RAW_X(q);
         SP_RAW_Y(r) = 4095 - SP_RAW_Y(q);
         break;
-		}
+    }
     SP_RAW_Z(r) = SP_RAW_Z(q);
     r.x = r.y = 0;
     return r;
