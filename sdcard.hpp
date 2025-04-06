@@ -103,7 +103,7 @@ static int GetFileNo(fs::FS &fs) {
 void GetFileList(fs::FS &fs, const char *dirname, uint8_t levels, std::vector<FileInfo_t> &files) {
   File root = fs.open(dirname);
   if (!root) {
-    DBG_EXEC(printf("Failed to open directory.\n"));
+    DBG_EXEC(printf("Failed to open %s.\n", dirname));
     return;
   }
   if (!root.isDirectory()) {
@@ -117,9 +117,10 @@ void GetFileList(fs::FS &fs, const char *dirname, uint8_t levels, std::vector<Fi
     bool isDir = file.isDirectory();
 
     // skip dot file
-#ifdef USE_SDFAT
+#ifdef SDFATFS_USED
     char name[BUF_SIZE];
     file.getName(name, sizeof(name));
+    std::string path = std::string(dirname) + "/" + std::string(name);
     if (file.isHidden()) {
       // DBG_EXEC(printf("%s is skipped.\n", name));
     }
@@ -130,28 +131,28 @@ void GetFileList(fs::FS &fs, const char *dirname, uint8_t levels, std::vector<Fi
     }
 #endif
 
-    else {
+    else if (isDir && levels) {
+#ifdef SDFATFS_USED
+      GetFileList(fs, path.c_str(), levels - 1, files);
+#else
+      GetFileList(fs, file.path(), levels - 1, files);
+#endif
+    }
+
+    else if (!isDir) {
       // Add full path to vector
       // file.path(), file.name(), file.size()
       // https://cpprefjp.github.io/reference/exception/exception.html
       // https://stackoverflow.com/questions/27609839/about-c-vectorpush-back-exceptions-ellipsis-catch-useful
       try {
-#ifdef USE_SDFAT
-        files.push_back({"/" + std::string(dirname) + "/" + std::string(name), (size_t)file.fileSize(), isDir, false});
+#ifdef SDFATFS_USED
+        files.push_back({path, (size_t)file.fileSize(), isDir, false});
 #else
         files.push_back({file.path(), file.size(), isDir, false});
 #endif
       } catch (const std::exception &e) {
         DBG_EXEC(printf("Exception: %s\n", e.what()));
         return;
-      }
-
-      if (isDir && levels) {
-#ifdef USE_SDFAT
-        GetFileList(fs, name, levels - 1, files);
-#else
-        GetFileList(fs, file.path(), levels - 1, files);
-#endif
       }
     }
 
