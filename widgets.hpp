@@ -1667,8 +1667,8 @@ static void onInformationScreen (const Widget_t *widget, const Touch_t &touch) {
     202302 ➜ C++23 standard.
   */
   const struct {
-    uint32_t ver;
-    char*    std; 
+    const uint32_t ver;
+    const char* std; 
   } cpp[] = {
     {199711, "C++03"},
     {201103, "C++11"},
@@ -1678,7 +1678,7 @@ static void onInformationScreen (const Widget_t *widget, const Touch_t &touch) {
     {202302, "C++23"},
     {203000, "C++xx"},
   };
-  char *cpp_ver = "";
+  const char *cpp_ver = "";
   for (int i = 0; i < sizeof(cpp) / sizeof(cpp[0]) - 1; ++i) {
     if (cpp[i].ver <= __cplusplus && __cplusplus < cpp[i+1].ver) {
       cpp_ver = cpp[i].std;
