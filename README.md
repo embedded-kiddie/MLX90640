@@ -2,7 +2,7 @@
 
 ## Description
 
-Program for thermal imaging camera with MLX90640 far-infrared (IR) thermal sensor srray for XIAO ESP32S3 and ESP32-2432S028R
+Program for thermal imaging camera with MLX90640 far-infrared thermal sensor for XIAO ESP32S3 and ESP32-2432S028R
 
 ## Features
 
