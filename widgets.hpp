@@ -1138,9 +1138,11 @@ static void onFileManagerScreen(const Widget_t *widget, const Touch_t &touch) {
       files.clear();
       GetFileList(SD, MLX90640_DIR.c_str(), 0, files);
       n_files = files.size();
-      std::sort(files.begin() + 1 /* skip @number.txt */, files.end(), [](FileInfo_t &a, FileInfo_t &b) {
-        return a.path.compare(b.path) > 0 ? true : false;
-      });
+      if (n_files) { // Fix: Exception interrupt when n_files == 0 (size_t)
+        std::sort(files.begin() + 1 /* skip @number.txt */, files.end(), [](FileInfo_t &a, FileInfo_t &b) {
+          return a.path.compare(b.path) > 0 ? true : false;
+        });
+      }
     }
 /*
     DBG_EXEC({
