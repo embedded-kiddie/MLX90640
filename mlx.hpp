@@ -25,8 +25,9 @@ float src[1][MLX90640_ROWS  * MLX90640_COLS];
 /*--------------------------------------------------------------------------------
  * Initial values for range of temperature
  *--------------------------------------------------------------------------------*/
-#define MINTEMP 20  // Low  temperature range
-#define MAXTEMP 35  // High temperature range
+#define TEMP_DLT  1               // 0: restrained, 1: enhanced
+#define TEMP_MIN  (20 + TEMP_DLT) // Low  temperature range
+#define TEMP_MAX  (35 - TEMP_DLT) // High temperature range
 
 /*--------------------------------------------------------------------------------
  * MLX90640 control configuration
@@ -89,8 +90,8 @@ constexpr MLXConfig_t mlx_ini = {
   .color_scheme   = 0,                  // 0: rainbow, 1: inferno
   .marker_mode    = 0,                  // 0: off, 1: min/max, 2: picked up by user
   .range_auto     = false,              // automatic measurement of temperature min/max
-  .range_min      = MINTEMP,            // minimum temperature (20 deg)
-  .range_max      = MAXTEMP,            // maximum temperature (35 deg)
+  .range_min      = TEMP_MIN,           // minimum temperature (20 deg)
+  .range_max      = TEMP_MAX,           // maximum temperature (35 deg)
 };
 
 MLXConfig_t mlx_cnf = mlx_ini;
@@ -99,15 +100,24 @@ MLXConfig_t mlx_cnf = mlx_ini;
  * MLX90640 capture control
  *--------------------------------------------------------------------------------*/
 typedef struct MLXCapture {
-  uint8_t       capture_mode; // 0: camera, 1: video
+  uint8_t       capture_mode: 4;  // 0: camera, 1: video
+  uint8_t       orientation : 4;  // 0: selfie, 1: outward
   bool          recording;    // false: stop, true: recording
   char          filename[30]; // "/MLX90640/mlx%04d.raw"
 } MLXCapture_t;
 
 MLXCapture_t mlx_cap = {
-  .capture_mode   = 0,        // 0: camera, 1: video
+  .capture_mode   = 0,
+#if ENA_OUTWARD_CAMERA
+  .orientation    = 1,        // 0: selfie, 1: outward
+#else
+  .orientation    = 0,        // 0: selfie, 1: outward
+#endif
   .recording      = false,    // false: stop, true: recording
 };
+
+// Checking the camera orientation
+#define IS_SELFIE(c)  ((c).orientation == 0)
 
 /*--------------------------------------------------------------------------------
  * Set MLX90640 refresh rate

@@ -10,7 +10,7 @@
 #endif
 
 /*--------------------------------------------------------------------------------
- * MLX90640 configuration and Widget control da
+ * MLX90640 configuration and Widget control data
  *--------------------------------------------------------------------------------*/
 extern MLXConfig_t    mlx_cnf;
 extern MLXCapture_t   mlx_cap;
@@ -20,6 +20,7 @@ static MLXConfig_t    mlx_copy;
 static MLXConfig_t    cnf_copy;
 static TouchConfig_t  tch_copy;
 static TouchConfig_t  tch_ajst;
+static bool shortcut = false;
 
 /*--------------------------------------------------------------------------------
  * Image data of widget
@@ -34,7 +35,7 @@ static constexpr Image_t image_capture_mode[]       = { { screen_capture_mode,  
 static constexpr Image_t image_calibration[]        = { { screen_calibration,   sizeof(screen_calibration  ) }, }; // 320 x 240
 static constexpr Image_t image_adjust_offset[]      = { { screen_adjust_offset, sizeof(screen_adjust_offset) }, }; // 270 x  60
 static constexpr Image_t image_information[]        = { { screen_information,   sizeof(screen_information  ) }, }; // 320 x 240
-static constexpr Image_t image_icon_configuration[] = { { icon_configuration,   sizeof(icon_configuration  ) }, }; //  50 x  50
+static constexpr Image_t image_icon_selfie[]        = { { icon_config_selfie,   sizeof(icon_config_selfie  ) }, }; //  50 x  50
 
 static constexpr Image_t image_icon_close[] = {
   { icon_close_on,  sizeof(icon_close_on ) }, // 30 x 30
@@ -52,6 +53,7 @@ static constexpr Image_t image_icon_camera[] = {
   { icon_camera2, sizeof(icon_camera2) }, // 50 x 50
   { icon_video,   sizeof(icon_video  ) }, // 50 x 50
   { icon_stop,    sizeof(icon_stop   ) }, // 50 x 50
+  { icon_selfie,  sizeof(icon_selfie ) }, // 50 x 50
 };
 static constexpr Image_t image_radio[] = {
   { radio_off, sizeof(radio_off) }, // 26 x 26
@@ -163,7 +165,7 @@ static constexpr Widget_t widget_main[] = {
   { 258,   0,  62, 134, NULL,              EVENT_ALL,  onMainOutside       },
   {   0, 195, 256,  45, NULL,              EVENT_ALL,  onMainThermograph   },
   { 265, 135,  50,  50, image_icon_camera, EVENT_UP,   onMainCapture       },
-  { 265, 185,  50,  50, NULL,              EVENT_ALL,  onMainConfiguration },
+  { 265, 185,  50,  50, image_icon_selfie, EVENT_ALL,  onMainConfiguration },
 };
 
 // Screen - Configuration
@@ -174,7 +176,7 @@ static void onConfigurationCaptureMode  (const Widget_t *widget, const Touch_t &
 static void onConfigurationFileManager  (const Widget_t *widget, const Touch_t &touch);
 static void onConfigurationCalibration  (const Widget_t *widget, const Touch_t &touch);
 static void onConfigurationInformation  (const Widget_t *widget, const Touch_t &touch);
-static void onConfigurationReturn       (const Widget_t *widget, const Touch_t &touch);
+static void onConfigurationClose        (const Widget_t *widget, const Touch_t &touch);
 
 static constexpr Widget_t widget_configuration[] = {
   {   0,   0, 320, 240, image_configuration, EVENT_NONE, onConfigurationScreen      },
@@ -184,7 +186,7 @@ static constexpr Widget_t widget_configuration[] = {
   {  24, 104,  70,  70, NULL,                EVENT_ALL,  onConfigurationFileManager },
   { 125, 104,  70,  70, NULL,                EVENT_ALL,  onConfigurationCalibration },
   { 226, 104,  70,  70, NULL,                EVENT_ALL,  onConfigurationInformation },
-  { 145, 206,  30,  30, NULL,                EVENT_ALL,  onConfigurationReturn      },
+  { 145, 206,  30,  30, NULL,                EVENT_ALL,  onConfigurationClose       },
 };
 
 // Screen - Resolution
@@ -241,12 +243,19 @@ static constexpr Widget_t widget_thermograph[] = {
 static void onCaptureModeScreen (const Widget_t *widget, const Touch_t &touch);
 static void onCaptureModeCamera (const Widget_t *widget, const Touch_t &touch);
 static void onCaptureModeVideo  (const Widget_t *widget, const Touch_t &touch);
+static void onCaptureModeSelfie (const Widget_t *widget, const Touch_t &touch);
 static void onCaptureModeApply  (const Widget_t *widget, const Touch_t &touch);
 
 static constexpr Widget_t widget_capture_mode[] = {
   {   0,   0, 320, 240, image_capture_mode, EVENT_NONE, onCaptureModeScreen   },
+#if ENA_OUTWARD_CAMERA
   {  48,  50, 240,  26, image_radio,        EVENT_DOWN, onCaptureModeCamera   },
   {  48, 126, 240,  26, image_radio,        EVENT_DOWN, onCaptureModeVideo    },
+#else
+  {  48,  43, 240,  26, image_radio,        EVENT_DOWN, onCaptureModeCamera   },
+  {  48,  97, 240,  26, image_radio,        EVENT_DOWN, onCaptureModeVideo    },
+  {  32, 150, 240,  26, image_toggle,       EVENT_DOWN, onCaptureModeSelfie   },
+#endif
   { 145, 206,  30,  30, NULL,               EVENT_ALL,  onCaptureModeApply    },
 };
 
@@ -264,7 +273,7 @@ static constexpr Widget_t widget_capture_mode[] = {
 // Screen - File manager
 static void onFileManagerScreen   (const Widget_t *widget, const Touch_t &touch);
 static void onFileManagerCheckAll (const Widget_t *widget, const Touch_t &touch);
-static void onFileManagerScrollBox(const Widget_t *widget, const Touch_t &touch);
+static void onFileManagerPickFile (const Widget_t *widget, const Touch_t &touch);
 static void onFileManagerScrollBar(const Widget_t *widget, const Touch_t &touch);
 static void onFileManagerRewind   (const Widget_t *widget, const Touch_t &touch);
 static void onFileManagerPlay     (const Widget_t *widget, const Touch_t &touch);
@@ -277,7 +286,7 @@ static void onFileManagerWatch    (const Widget_t *widget, const Touch_t &touch)
 static constexpr Widget_t widget_file_manager[] = {
   {   0,   0, 320, 240, image_file_manager, EVENT_NONE,   onFileManagerScreen    },
   {   0,   9,  26,  26, image_checkbox,     EVENT_DOWN,   onFileManagerCheckAll  },
-  {  29,  10, 138, 220, NULL,               EVENT_SELECT, onFileManagerScrollBox }, // VIEW_WIDTH x VIEW_HEIGHT
+  {  29,  10, 138, 220, NULL,               EVENT_TOUCH,  onFileManagerPickFile  }, // VIEW_WIDTH x VIEW_HEIGHT
   { 170,   9,  15, 220, NULL,               EVENT_DRAG,   onFileManagerScrollBar }, // scroll bar x VIEW_HEIGHT
   { 190,  62, 128,  96, NULL,               EVENT_NONE,   nullptr                }, // thumbnail area
   { 194, 165,  24,  26, image_rewind,       EVENT_CLICK,  onFileManagerRewind    }, // 24 x 24 --> 24 x 26 for DrawPress()
@@ -348,8 +357,16 @@ static constexpr Widget_t widget_information[] = {
 };
 
 /*--------------------------------------------------------------------------------
- * Common method - Apply
+ * Common method - Close / Apply
  *--------------------------------------------------------------------------------*/
+static bool Close(const Widget_t *widget, const Touch_t &touch) {
+  if (touch.event != EVENT_INIT) {
+    DrawPress(widget, touch.event);
+    return true;
+  }
+  return false;
+}
+
 static bool Apply(const Widget_t *widget, const Touch_t &touch, bool enable) {
   if (touch.event == EVENT_INIT) {
     DrawButton(widget, enable);
@@ -389,11 +406,7 @@ static void onMainInside(const Widget_t *widget, const Touch_t &touch) {
 
   if (touch.event != EVENT_INIT) {
     const int box = mlx_cnf.box_size * mlx_cnf.interpolation;
-#if ENA_OUTWARD_CAMERA
-    te_pick.x = MLX90640_COLS - 1 - touch.x / box;
-#else
-    te_pick.x = touch.x / box;
-#endif
+    te_pick.x = (IS_SELFIE(mlx_cap) ? touch.x / box : MLX90640_COLS - 1 - touch.x / box);
     te_pick.y = touch.y / box;
     mlx_cnf.marker_mode |= 2;
   }
@@ -404,7 +417,7 @@ static void onMainOutside(const Widget_t *widget, const Touch_t &touch) {
 
   if (touch.event != EVENT_INIT) {
     te_pick.x = te_pick.y = 0;
-    lp_pick.y = (MINTEMP + MAXTEMP) / 2;
+    lp_pick.y = (TEMP_MIN + TEMP_MAX) / 2;
     mlx_cnf.marker_mode &= 1;
   }
 }
@@ -412,7 +425,8 @@ static void onMainOutside(const Widget_t *widget, const Touch_t &touch) {
 static void onMainThermograph(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
+    shortcut = true;
     widget_state(STATE_THERMOGRAPH);
   }
 }
@@ -460,8 +474,17 @@ static void onMainCapture(const Widget_t *widget, const Touch_t &touch) {
 static void onMainConfiguration(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+#if ! ENA_OUTWARD_CAMERA
+  if (touch.event == EVENT_INIT && IS_SELFIE(mlx_cap)) {
+    DrawWidget(widget);
+  } else
+#endif
+
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_CONFIGURATION);
+  } else if (touch.event & EVENT_HOLD) {
+    shortcut = true;
+    widget_state(STATE_CAPTURE_MODE, true);
   }
 }
 
@@ -482,7 +505,7 @@ static void onConfigurationScreen(const Widget_t *widget, const Touch_t &touch) 
 static void onConfigurationResolution(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_RESOLUTION);
   }
 }
@@ -490,7 +513,7 @@ static void onConfigurationResolution(const Widget_t *widget, const Touch_t &tou
 static void onConfigurationThermograph(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_THERMOGRAPH);
   }
 }
@@ -498,7 +521,7 @@ static void onConfigurationThermograph(const Widget_t *widget, const Touch_t &to
 static void onConfigurationCaptureMode(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_CAPTURE_MODE);
   }
 }
@@ -506,7 +529,7 @@ static void onConfigurationCaptureMode(const Widget_t *widget, const Touch_t &to
 static void onConfigurationFileManager(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_FILE_MANAGER);
   }
 }
@@ -514,7 +537,7 @@ static void onConfigurationFileManager(const Widget_t *widget, const Touch_t &to
 static void onConfigurationCalibration(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_CALIBRATION);
   }
 }
@@ -522,15 +545,15 @@ static void onConfigurationCalibration(const Widget_t *widget, const Touch_t &to
 static void onConfigurationInformation(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_INFORMATION);
   }
 }
 
-static void onConfigurationReturn(const Widget_t *widget, const Touch_t &touch) {
+static void onConfigurationClose(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (Close(widget, touch) == true) {
     widget_state(STATE_MAIN);
   }
 }
@@ -684,7 +707,7 @@ static void onResolutionSlider3 (const Widget_t *widget, const Touch_t &touch) {
 static void onResolutionClose(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (Close(widget, touch) == true) {
     widget_state(STATE_CONFIGURATION);
   }
 }
@@ -839,7 +862,7 @@ static void onThermographSlider1(const Widget_t *widget, const Touch_t &touch) {
 
     // when range_auto == true then make slider disable
     PutThermoSlider(widget, cnf_copy.range_min, !cnf_copy.range_auto);
-    gfx_printf(TERMOGRAPH_MIN_X, TERMOGRAPH_MIN_Y, "%3d", cnf_copy.range_min);
+    gfx_printf(TERMOGRAPH_MIN_X, TERMOGRAPH_MIN_Y, "%3d", cnf_copy.range_min - TEMP_DLT);
   }
 
   else if (!cnf_copy.range_auto) {
@@ -848,7 +871,7 @@ static void onThermographSlider1(const Widget_t *widget, const Touch_t &touch) {
     static int16_t V = 0xFFFF;
     if (V != v) {
       mlx_cnf.range_min = cnf_copy.range_min = V = v;
-      gfx_printf(TERMOGRAPH_MIN_X, TERMOGRAPH_MIN_Y, "%3d", cnf_copy.range_min);
+      gfx_printf(TERMOGRAPH_MIN_X, TERMOGRAPH_MIN_Y, "%3d", cnf_copy.range_min - TEMP_DLT);
       onThermographSlider2(widget + 1, doInit);
     }
   }
@@ -875,7 +898,7 @@ static void onThermographSlider2(const Widget_t *widget, const Touch_t &touch) {
 
     // when range_auto == true then make slider disable
     PutThermoSlider(widget, cnf_copy.range_max, !cnf_copy.range_auto);
-    gfx_printf(TERMOGRAPH_MAX_X, TERMOGRAPH_MAX_Y, "%3d", cnf_copy.range_max);
+    gfx_printf(TERMOGRAPH_MAX_X, TERMOGRAPH_MAX_Y, "%3d", cnf_copy.range_max + TEMP_DLT);
   }
 
   else if (!cnf_copy.range_auto) {
@@ -884,7 +907,7 @@ static void onThermographSlider2(const Widget_t *widget, const Touch_t &touch) {
     static int16_t V = 0xFFFF;
     if (V != v) {
       mlx_cnf.range_max = cnf_copy.range_max = V = v;
-      gfx_printf(TERMOGRAPH_MAX_X, TERMOGRAPH_MAX_Y, "%3d", cnf_copy.range_max);
+      gfx_printf(TERMOGRAPH_MAX_X, TERMOGRAPH_MAX_Y, "%3d", cnf_copy.range_max + TEMP_DLT);
       onThermographSlider1(widget - 1, doInit);
     }
   }
@@ -959,10 +982,15 @@ static void onThermographMaxDown(const Widget_t *widget, const Touch_t &touch) {
 static void onThermographClose(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (Close(widget, touch) == true) {
     mlx_cnf = mlx_copy;
     mlx_cnf.init();
-    widget_state(STATE_CONFIGURATION);
+    if (shortcut) {
+      shortcut = false;
+      widget_state(STATE_MAIN);
+    } else {
+      widget_state(STATE_CONFIGURATION);
+    }
   }
 }
 
@@ -1030,11 +1058,30 @@ static void onCaptureModeVideo(const Widget_t *widget, const Touch_t &touch) {
   DrawRadio(widget - 1, 2, mlx_cap.capture_mode);
 }
 
-static void onCaptureModeApply(const Widget_t *widget, const Touch_t &touch) {
+static void onCaptureModeSelfie(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
   if (touch.event != EVENT_INIT) {
-    widget_state(STATE_CONFIGURATION);
+    mlx_cap.orientation ^= 1;
+  }
+
+  DrawToggle(widget, IS_SELFIE(mlx_cap));
+
+  if (touch.event == EVENT_INIT && shortcut) {
+    touch_clear();
+  }
+}
+
+static void onCaptureModeApply(const Widget_t *widget, const Touch_t &touch) {
+  DBG_FUNC(printf("%s\n", __func__));
+
+  if (Close(widget, touch) == true) {
+    if (shortcut) {
+      shortcut = false;
+      widget_state(STATE_MAIN);
+    } else {
+      widget_state(STATE_CONFIGURATION);
+    }
   }
 }
 
@@ -1179,7 +1226,7 @@ static void onFileManagerCheckAll(const Widget_t *widget, const Touch_t &touch) 
   DrawCheck(widget, file_selected ? 1 : 0);
 }
 
-static void onFileManagerScrollBox(const Widget_t *widget, const Touch_t &touch) {
+static void onFileManagerPickFile(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
   if (touch.event != EVENT_INIT) {
@@ -1325,7 +1372,7 @@ static void onFileManagerNext(const Widget_t *widget, const Touch_t &touch) {
 static void onFileManagerClose(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (Close(widget, touch) == true) {
     widget_state(STATE_CONFIGURATION);
   }
 }
@@ -1386,7 +1433,7 @@ static void onFileConfirmScreen(const Widget_t *widget, const Touch_t &touch) {
 static void onFileConfirmClose(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (Close(widget, touch) == true) {
     // Back to the file manager screen
     keep_selected = true;
     widget_state(STATE_FILE_MANAGER);
@@ -1480,7 +1527,7 @@ static void onCalibrationScreen(const Widget_t *widget, const Touch_t &touch) {
 static void onCalibrationExec(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     touch_calibrate(&tch_copy);
     widget_state(STATE_CALIBRATION);
   }
@@ -1489,7 +1536,7 @@ static void onCalibrationExec(const Widget_t *widget, const Touch_t &touch) {
 static void onCalibrationAdjust(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (touch.event == EVENT_RISING) {
     widget_state(STATE_ADJUST_OFFSET);
   }
 }
@@ -1568,7 +1615,7 @@ static void onCalibrationYdown(const Widget_t *widget, const Touch_t &touch) {
 static void onCalibrationClose(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event & EVENT_DOWN) {
+  if (Close(widget, touch) == true) {
     widget_state(STATE_CONFIGURATION);
   }
 }
@@ -1635,7 +1682,7 @@ static void onAdjustOffsetTarget(const Widget_t *widget, const Touch_t &touch) {
 static void onAdjustOffsetClose(const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (Close(widget, touch) == true) {
     widget_state(STATE_CALIBRATION);
   }
 }
@@ -1695,7 +1742,7 @@ static void onInformationScreen (const Widget_t *widget, const Touch_t &touch) {
   // https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/misc_system_api.html
   gfx_printf(x, y + h *  0, "MLX90640 S/N:%04X%04X%04X", mlx.serialNumber[0], mlx.serialNumber[1], mlx.serialNumber[2]);
   gfx_printf(x, y + h *  1, "MCU model   :%s R%d", ESP.getChipModel(), ESP.getChipRevision());
-  gfx_printf(x, y + h *  2, "ESP-IDF ver :%d.%d.%d %s", ESP_IDF_VERSION_MAJOR, ESP_IDF_VERSION_MINOR, ESP_IDF_VERSION_PATCH, cpp_ver);
+  gfx_printf(x, y + h *  2, "ESP32 core  :%d.%d.%d %s", ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH, cpp_ver);
   gfx_printf(x, y + h *  3, "Sketch space:%7d", ESP.getFreeSketchSpace());
   gfx_printf(x, y + h *  4, "Sketch size :%7d", ESP.getSketchSize());
   gfx_printf(x, y + h *  5, "Task 1 stack:%7d", uxTaskGetStackHighWaterMark(taskHandle[0]));
@@ -1739,7 +1786,7 @@ static void onInformationScreen (const Widget_t *widget, const Touch_t &touch) {
 static void onInformationClose  (const Widget_t *widget, const Touch_t &touch) {
   DBG_FUNC(printf("%s\n", __func__));
 
-  if (touch.event != EVENT_INIT) {
+  if (Close(widget, touch) == true) {
     widget_state(STATE_CONFIGURATION);
   }
 }

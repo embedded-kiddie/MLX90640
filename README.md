@@ -74,13 +74,14 @@ For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
 ### Requirements
 
 - Arduino IDE : [2.3.4][1]
-- Board package : esp32 by Espressif Systems : [3.1.1][2]  
+- Board package : esp32 by Espressif Systems : [3.0.5][2] and later  
+  (3.3.7 and below (excluding 3.3.6) are recommended. See [Known Issues](#known-issues))  
   Board type:
     - [XIAO_ESP32S3][21]
     - [ESP32-2432S028R CYD][22]
 - Adafruit_MLX90640 [1.1.1][3]
 - GFX library
-  - LovyanGFX : [1.2.0][4] or
+  - LovyanGFX : [1.2.7, 1.2.19][4] and later
   - TFT_eSPI : [2.5.43][5]
 - Touchscreen library (only for TFT_eSPI on CYD)
   - XPT2046_Touchscreen : [Version 1.4][6] or
@@ -92,7 +93,6 @@ For GPIO pin assignments, see [`pin_assign.h`](pin_assign.h).
 MLX90640.ino
 ├─ pin_assign.h
 ├─ heatmap.h
-│
 ├─ mlx.hpp
 ├─ gfx.hpp
 │   │ <LovyanGFX.h>
@@ -119,9 +119,9 @@ MLX90640.ino
 
 ### Configuration
 
-1. Depending on the board type, define pinouts of the I2C for MLX90640 and SPI for LCD / touch screen / SD card in `pin_assign.h`.
+1. Depending on the board type, define pinouts of the I2C for MLX90640 and SPI for LCD / touch screen / SD card in [pin_assign.h](pin_assign.h).
 
-2. Configure each step in `MLX90640.ino`. Generally, there is no need to change the default values.
+2. Configure each step in [MLX90640.ino](MLX90640.ino). Generally, there is no need to change the default values.
   - Step1: Debugging mode (default: `false`)
   - Step2: Operational specifications
     - `ENA_INTERPOLATION` (default: `true`)
@@ -158,16 +158,52 @@ or when you select to run calibration from the menu.
 
 ![Calibration Screen](images/TouchCalibration.jpg)
 </details>
+<br />
 
 If `USE_PREFERENCES` is set to `true`, you can save the calibration results to flash, but when it's set to `false`, 
 you need to open the serial monitor with **115200** bps before running the calibration and embed the displayed data into 
 [`touch.hpp`](https://github.com/embedded-kiddie/MLX90640/blob/main/touch.hpp#L25-L48) after calibration is completed.
 
-## Known Issue
+## Screen Transition
+On the main screen, there are four areas that provide special functions.
 
-- When TFT_eSPI is selected,
-  - rendering will be slower than LovyanGFX on ESP32-2432S028R.
-  - screenshots can not be saved correctly on XIAO_ESP32S3.
+- Thermal image (area **A**)  
+  Displays the temperature measurement at the touched point.
+- Imformation area (area **B**)  
+  Touching this area cancles the temperature measurement point specified in area **A**.
+- Thermogram scale (area **C**)  
+  Go directly to the `Thermograph` settings screen.
+- Gear icon (area **D**)  
+  Long-pressing takes you directly to the `Capture Mode` settings screen.
+
+<details>
+<summary>Screen transitions</summary>
+
+![Screen transition](images/ScreensTransition.jpg)
+</details>
+
+## Refresh Rate vs Noise
+The [MLX90640 datasheet][8] shows the relationship between noise and refresh rate.
+
+![MLX90640 noise vs refresh rate](images/accuracy-refresh-rate.jpg)
+
+To obtain an image with less noise, please lower the frame rate.
+
+![1 FPS vs 16 FPS](images/accuracy-1fps-16fps.png)
+
+## Known Issues
+
+### ESP32 core version
+It has been observed that, with ESP32 core version 3.3.8 and later, the MLX90640 refresh rate and image rendering process become slower. In the worst-case scenario, it is not possible to achieve 16 FPS.
+
+![Execution results in 3.3.12](images/FPS_drop.jpg)
+
+Therefore, the recommended ESP32 core versions are **3.0.5 through 3.3.7 (excluding 3.3.6)**.
+
+### Using TFT_eSPI
+When TFT_eSPI is selected,
+- rendering will be slower than LovyanGFX on ESP32-2432S028R.
+- screenshots can not be saved correctly on XIAO_ESP32S3.
 
 ## Related Project
 - [MLX90640Viewer](https://github.com/embedded-kiddie/MLX90640Viewer)  
@@ -193,11 +229,11 @@ you need to open the serial monitor with **115200** bps before running the calib
 
 [1]: https://www.arduino.cc/en/software "Software｜Arduino"
 
-[2]: https://github.com/espressif/arduino-esp32/releases/tag/3.1.1 "Release Arduino Release v3.1.1 based on ESP-IDF v5.3.2 · espressif/arduino-esp32"
+[2]: https://github.com/espressif/arduino-esp32/releases/tag/3.0.5 "Release Arduino Release v3.0.5 based on ESP-IDF v5.1.4+ · espressif/arduino-esp32"
 
 [3]: https://github.com/adafruit/Adafruit_MLX90640 "adafruit/Adafruit_MLX90640: MLX90640 library functions"
 
-[4]: https://github.com/lovyan03/LovyanGFX/releases/tag/1.2.0 "Release 1.2.0 · lovyan03/LovyanGFX"
+[4]: https://github.com/lovyan03/LovyanGFX "lovyan03/LovyanGFX: SPI LCD graphics library for ESP32 (ESP-IDF/ArduinoESP32) / ESP8266 (ArduinoESP8266) / SAMD51(Seeed ArduinoSAMD51)"
 
 [5]: https://github.com/Bodmer/TFT_eSPI/releases/tag/V2.5.43 "Release Bug fixes · Bodmer/TFT_eSPI"
 

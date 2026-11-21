@@ -59,7 +59,7 @@ static constexpr Touch_t showRange = { EVENT_SHOW, 0, 0 };
  * Functions prototyping
  *--------------------------------------------------------------------------------*/
 void widget_setup(State_t screen = STATE_ON);
-void widget_state(State_t screen = STATE_ON);
+void widget_state(State_t screen = STATE_ON, bool immediate = false);
 State_t widget_control(void);
 
 /*--------------------------------------------------------------------------------
@@ -133,8 +133,6 @@ static bool widget_get(State_t screen, Widget_t const **widget, int *n) {
  * Handle the widget events on screen
  *--------------------------------------------------------------------------------*/
 static bool widget_event(const Widget_t *widgets, const size_t n_widgets, Touch_t &touch) {
-  Event_t event = touch.event;
-
   if (focus == NULL) {
     for (int i = 0; i < n_widgets; ++i) {
       // In case the touch events to be handled
@@ -157,7 +155,7 @@ static bool widget_event(const Widget_t *widgets, const size_t n_widgets, Touch_
   }
 
   // reset focus when touch leaves screen
-  focus = (event & EVENT_RISING ? NULL : focus);
+  focus = (touch.event & (EVENT_RISING | EVENT_HOLD) ? NULL : focus);
 
   return (focus != NULL);
 }
@@ -167,6 +165,19 @@ static bool widget_event(const Widget_t *widgets, const size_t n_widgets, Touch_
  *--------------------------------------------------------------------------------*/
 static bool widget_watch(const Widget_t *widgets, const size_t n_widgets) {
   Touch_t touch;
+
+#if ENA_SCREENSHOT
+  // Capture screen
+  if (Serial.available()) {
+    Serial.readStringUntil('\n');
+    Serial.print("saving...");
+    if (sdcard_save()) {
+      Serial.println("done.");
+    } else {
+      Serial.println("failed.");
+    }
+  }
+#endif
 
   if (touch_event(touch)) {
     // Returns true when the touch event is handled by a widget
@@ -207,8 +218,10 @@ void widget_setup(State_t screen /* = STATE_ON */) {
 /*--------------------------------------------------------------------------------
  * Change state
  *--------------------------------------------------------------------------------*/
-void widget_state(State_t screen /*= STATE_ON */) {
-  touch_clear();
+void widget_state(State_t screen, bool immediate) {
+  if (!immediate) {
+    touch_clear();
+  }
   widget_setup(state = screen);
 }
 

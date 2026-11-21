@@ -134,11 +134,7 @@ static void DrawMarker(const Image_t *image, Temperature_t *temp) {
   const int box = mlx_cnf.box_size * mlx_cnf.interpolation;
   const int W = box * (MLX90640_COLS - 1);
   const int Y = box * temp->y;
-#if ENA_OUTWARD_CAMERA
-  const int X = box * (MLX90640_COLS - 1 - temp->x);
-#else
-  const int X = box * temp->x;
-#endif
+  const int X = box * (IS_SELFIE(mlx_cap) ? temp->x : (MLX90640_COLS - 1 - temp->x));
 
   const int w = get_width (image->data);
   const int h = get_height(image->data);
@@ -225,10 +221,10 @@ void DrawTemperatureRange(uint8_t type) {
     GFX_EXEC(setTextSize(size));
 
     GFX_EXEC(setTextDatum(TL_DATUM));
-    gfx_printf(0, y, "%d  ", mlx_cnf.range_min);
+    gfx_printf(0, y, "%d  ", mlx_cnf.range_min - TEMP_DLT);
 
     GFX_EXEC(setTextDatum(TR_DATUM));
-    gfx_printf(w, y, " %d", mlx_cnf.range_max);
+    gfx_printf(w, y, " %d", mlx_cnf.range_max + TEMP_DLT);
 
     if (box > 1) {
       GFX_EXEC(setTextDatum(TC_DATUM));

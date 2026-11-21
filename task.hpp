@@ -155,6 +155,6 @@ void Task2(void *pvParameters) {
 
     Process2(queue.bank, queue.start, queue.finish);
 
-    yield(); // Prevent the watchdog from firing
+    delay(1); // Prevent the watchdog from firing
   }
 }

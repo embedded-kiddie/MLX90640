@@ -19,16 +19,17 @@ static LowPass_t lp_min, lp_max, lp_pick;
  * Set the initial value for the low-pass filter
  *--------------------------------------------------------------------------------*/
 void filter_reset(void) {
-  lp_min.y  = MINTEMP;
-  lp_max.y  = MAXTEMP;
-  lp_pick.y = (MINTEMP + MAXTEMP) / 2;
+  lp_min.y  = TEMP_MIN;
+  lp_max.y  = TEMP_MAX;
+  lp_pick.y = (TEMP_MIN + TEMP_MAX) / 2;
 }
 
 /*--------------------------------------------------------------------------------
  * Measure temperature and update it's range & min/max points
  *--------------------------------------------------------------------------------*/
-#if false
+#if true
 #define CHECK_VALUE
+#define IS_INVALID(t) (!isfinite(t) || (t) < -30.0f || 300.0f < (t))
 #include <math.h>
 #endif
 
@@ -47,7 +48,13 @@ void filter_update(void) {
 void filter_temperature(float *src) {
   // Measure the temperature at the picked up point
   if (te_pick.x != 0 || te_pick.y != 0) {
-    te_pick.v = src[te_pick.x + (te_pick.y * MLX90640_COLS)];
+    float t = src[te_pick.x + (te_pick.y * MLX90640_COLS)];
+#ifdef  CHECK_VALUE
+    if (IS_INVALID(t)) {
+      return;
+    }
+#endif
+    te_pick.v = t;
     te_pick.v = lp_pick.filter(te_pick.v, mlx_cnf.sampling_period);
   }
 
@@ -59,8 +66,8 @@ void filter_temperature(float *src) {
     for (uint16_t x = 0; x < MLX90640_COLS; ++x, ++src) {
       float t = *src;
 #ifdef  CHECK_VALUE
-      if (isinf(t) || isnan(t) || t < -30.0f || 300.0f < t) {
-        continue;
+      if (IS_INVALID(t)) {
+        return; // Subsequent data cannot be trusted
       }
 #endif
       if (t < te_min.v) { te_min.x = x; te_min.y = y; te_min.v = t; } else
@@ -70,8 +77,8 @@ void filter_temperature(float *src) {
 
   if (mlx_cnf.range_auto) {
     #define RANGE_STEP  (1) // --> 'TERMOGRAPH_STEP' in widgets.hpp
-    mlx_cnf.range_min = ((int)((float)lp_min.filter(te_min.v, mlx_cnf.sampling_period) / (float)RANGE_STEP) + 0.5f) * RANGE_STEP;
-    mlx_cnf.range_max = ((int)((float)lp_max.filter(te_max.v, mlx_cnf.sampling_period) / (float)RANGE_STEP) + 0.5f) * RANGE_STEP;
+    mlx_cnf.range_min = (int)(lp_min.filter(te_min.v, mlx_cnf.sampling_period) + 0.5f) + TEMP_DLT; // / (float)RANGE_STEP) * RANGE_STEP;
+    mlx_cnf.range_max = (int)(lp_max.filter(te_max.v, mlx_cnf.sampling_period) + 0.5f) - TEMP_DLT; // / (float)RANGE_STEP) * RANGE_STEP;
 
     // debug for serial ploter
     // DBG_EXEC(printf("%4.1f, %4.1f, %4.1f, %4.1f\n", te_min.v, te_max.v, lp_min.y, lp_max.y));

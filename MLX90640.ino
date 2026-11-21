@@ -81,6 +81,11 @@ constexpr uint16_t heatmap[2][N_HEATMAP] = {
 };
 
 /*--------------------------------------------------------------------------------
+ * Capture a screenshot (Enter a carriage return in the Serial Monitor)
+ *--------------------------------------------------------------------------------*/
+#define ENA_SCREENSHOT  false
+
+/*--------------------------------------------------------------------------------
  * Load modules
  *--------------------------------------------------------------------------------*/
 #include "mlx.hpp"
@@ -171,14 +176,6 @@ void ProcessOutput(uint8_t bank, uint32_t inputStart, uint32_t inputFinish) {
     if (mlx_cap.recording) {
       sdcard_record((uint8_t*)src[bank], sizeof(src[bank]), mlx_cap.filename);
     }
-
-#if DEBUG
-  // Capture screen
-  else if (Serial.available()) {
-    Serial.readStringUntil('\n');
-    sdcard_save();
-  }
-#endif
 
     // Update processing time
     prevStart = outputStart;
